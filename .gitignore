@@ -1,0 +1,44 @@
+# Ignore specific files
+HELP.md
+.DS_Store
+src/main/resources/*.properties
+src/main/resources/*.yml
+*.pem
+
+# Ignore Gradle build directory except gradle-wrapper.jar
+.gradle
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# Ignore STS specific files and directories
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+# Ignore IntelliJ IDEA specific files and directories
+.idea
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+# Ignore NetBeans specific files and directories
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+# Ignore VS Code specific files and directories
+.vscode/
