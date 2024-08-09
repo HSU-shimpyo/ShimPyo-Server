@@ -29,4 +29,15 @@ public class User extends BaseEntity {
     private Date birth; // 생년월일
 
     private String role; // 사용자 권한
+
+    public static User toEntity(SignUpDto dto) {
+
+        User user = User.builder()
+                .userId(dto.getUserId())
+                .password(dto.getPassword())
+                .birth(dto.getBirth())
+                .build();
+
+        return user;
+    }
 }

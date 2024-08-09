@@ -1,6 +1,7 @@
 package com.hsu.shimpyoo.global.user.controller;
 
 import com.hsu.shimpyoo.global.user.dto.SignUpDto;
+import com.hsu.shimpyoo.global.user.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
