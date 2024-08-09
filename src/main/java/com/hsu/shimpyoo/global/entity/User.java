@@ -23,9 +23,10 @@ public class User extends BaseEntity {
     @Column(name = "user_id", nullable = false, unique = true)
     private String userId; // 아이디
 
-    @Column(name = "password", nullable = false)
     private String password; // 비밀번호
 
     @Column(name = "birth", nullable = false)
     private Date birth; // 생년월일
+
+    private String role; // 사용자 권한
 }
