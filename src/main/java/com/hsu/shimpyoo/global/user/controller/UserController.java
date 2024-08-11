@@ -2,7 +2,6 @@ package com.hsu.shimpyoo.global.user.controller;
 
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import com.hsu.shimpyoo.global.user.dto.SignInReqDto;
-import com.hsu.shimpyoo.global.user.dto.SignInResDto;
 import com.hsu.shimpyoo.global.user.dto.SignUpDto;
 import com.hsu.shimpyoo.global.user.service.UserService;
 import jakarta.validation.Valid;
@@ -30,8 +29,7 @@ public class UserController {
 
 
     @PostMapping("/signIn")
-    public ResponseEntity<?> signIn(@RequestBody @Valid SignInReqDto dto) {
-        SignInResDto result = userService.signIn(dto);
-        return ResponseEntity.ok(result);
+    public ResponseEntity<CustomAPIResponse<Map<String, String>>> signIn(@RequestBody @Valid SignInReqDto dto) {
+        return userService.signIn(dto);
     }
 }

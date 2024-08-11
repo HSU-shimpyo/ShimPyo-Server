@@ -70,10 +70,6 @@ public class JwtTokenProvider {
         SecurityContextHolder.getContext().setAuthentication(auth);
     }
 
-    public String getUserId(String token){
-        return Jwts.parserBuilder().setSigningKey(getSignKey(secretKey)).build().parseClaimsJws(token).getBody().getSubject();
-    }
-
     public Claims getClaimsFromToken(String token) {
         return Jwts.parserBuilder().setSigningKey(getSignKey(secretKey)).build().parseClaimsJws(token).getBody();
     }
