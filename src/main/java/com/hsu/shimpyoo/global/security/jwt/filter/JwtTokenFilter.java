@@ -1,5 +1,6 @@
-package com.hsu.shimpyoo.global.jwt.security;
+package com.hsu.shimpyoo.global.security.jwt.filter;
 
+import com.hsu.shimpyoo.global.security.jwt.JwtTokenProvider;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletRequest;

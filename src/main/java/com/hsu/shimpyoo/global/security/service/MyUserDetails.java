@@ -1,7 +1,7 @@
-package com.hsu.shimpyoo.global.jwt.security;
+package com.hsu.shimpyoo.global.security.service;
 
-import com.hsu.shimpyoo.global.entity.User;
-import com.hsu.shimpyoo.global.user.repository.UserRepository;
+import com.hsu.shimpyoo.domain.user.entity.User;
+import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
