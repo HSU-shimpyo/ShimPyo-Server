@@ -1,5 +1,7 @@
-package com.hsu.shimpyoo.global.jwt.security;
+package com.hsu.shimpyoo.global.security.config;
 
+import com.hsu.shimpyoo.global.security.jwt.filter.JwtTokenFilter;
+import com.hsu.shimpyoo.global.security.jwt.JwtTokenProvider;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

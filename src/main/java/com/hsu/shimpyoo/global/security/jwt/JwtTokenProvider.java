@@ -1,5 +1,6 @@
-package com.hsu.shimpyoo.global.jwt.security;
+package com.hsu.shimpyoo.global.security.jwt;
 
+import com.hsu.shimpyoo.global.security.service.MyUserDetails;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;

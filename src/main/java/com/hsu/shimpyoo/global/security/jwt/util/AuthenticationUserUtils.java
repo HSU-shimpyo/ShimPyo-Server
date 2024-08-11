@@ -1,4 +1,4 @@
-package com.hsu.shimpyoo.global.jwt.util;
+package com.hsu.shimpyoo.global.security.jwt.util;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.Authentication;

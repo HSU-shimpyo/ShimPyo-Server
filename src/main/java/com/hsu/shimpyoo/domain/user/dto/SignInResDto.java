@@ -1,4 +1,4 @@
-package com.hsu.shimpyoo.global.user.dto;
+package com.hsu.shimpyoo.domain.user.dto;
 
 import lombok.Builder;
 import lombok.Getter;
