@@ -1,5 +1,6 @@
 package com.hsu.shimpyoo.global.entity;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hsu.shimpyoo.global.user.dto.SignUpDto;
 import jakarta.persistence.*;
 import lombok.*;
@@ -25,16 +26,17 @@ public class User extends BaseEntity {
 
     private String password; // 비밀번호
 
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy.MM.dd")
     @Column(name = "birth", nullable = false)
     private Date birth; // 생년월일
 
     private String role; // 사용자 권한
 
-    public static User toEntity(SignUpDto dto) {
+    public static User toEntity(SignUpDto dto, String encryptedPassword) {
 
         User user = User.builder()
                 .userId(dto.getUserId())
-                .password(dto.getPassword())
+                .password(encryptedPassword)
                 .birth(dto.getBirth())
                 .build();
 
