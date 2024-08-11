@@ -32,7 +32,7 @@ public class JwtTokenProvider {
     private String secretKey;
 
     @Value("${application.security.jwt.expiration}")
-    private Long validityInMilliseconds;
+    private long validityInMilliseconds;
 
     @PostConstruct
     protected void init() {secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());}
@@ -75,7 +75,7 @@ public class JwtTokenProvider {
     }
 
     public Claims getClaimsFromToken(String token) {
-        return Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token).getBody();
+        return Jwts.parserBuilder().setSigningKey(getSignKey(secretKey)).build().parseClaimsJws(token).getBody();
     }
 
     public String resolveToken(HttpServletRequest request) {
