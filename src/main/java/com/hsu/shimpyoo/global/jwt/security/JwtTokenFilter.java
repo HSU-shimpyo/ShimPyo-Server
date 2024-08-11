@@ -19,16 +19,23 @@ public class JwtTokenFilter extends GenericFilterBean {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain)
             throws IOException, ServletException {
         HttpServletRequest request = (HttpServletRequest) servletRequest;
+
+        // 로그인 및 회원가입 경로를 필터링하지 않음
+        String path = request.getRequestURI();
+        if (path.equals("/api/signUp") || path.equals("/api/signIn")) {
+            filterChain.doFilter(servletRequest, servletResponse);
+            return;
+        }
+
         String token = jwtTokenProvider.resolveToken(request);
         System.out.println("token: " + token);
 
-        if (token != null) {
-            if(jwtTokenProvider.validateToken(token)) {
-                jwtTokenProvider.setSecurityContext(token);
-            }
+        if (token != null && jwtTokenProvider.validateToken(token)) {
+            jwtTokenProvider.setSecurityContext(token);
         }
 
         filterChain.doFilter(servletRequest, servletResponse);
     }
+
 
 }
