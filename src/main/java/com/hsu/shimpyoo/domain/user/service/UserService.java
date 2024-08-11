@@ -1,11 +1,11 @@
-package com.hsu.shimpyoo.global.user.service;
+package com.hsu.shimpyoo.domain.user.service;
 
-import com.hsu.shimpyoo.global.entity.User;
-import com.hsu.shimpyoo.global.jwt.security.JwtTokenProvider;
+import com.hsu.shimpyoo.domain.user.dto.SignInReqDto;
+import com.hsu.shimpyoo.domain.user.dto.SignUpDto;
+import com.hsu.shimpyoo.domain.user.repository.UserRepository;
+import com.hsu.shimpyoo.domain.user.entity.User;
+import com.hsu.shimpyoo.global.security.jwt.JwtTokenProvider;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
-import com.hsu.shimpyoo.global.user.dto.SignInReqDto;
-import com.hsu.shimpyoo.global.user.dto.SignUpDto;
-import com.hsu.shimpyoo.global.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,13 +1,12 @@
-package com.hsu.shimpyoo.global.entity;
+package com.hsu.shimpyoo.domain.user.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hsu.shimpyoo.global.user.dto.SignUpDto;
+import com.hsu.shimpyoo.domain.user.dto.SignUpDto;
+import com.hsu.shimpyoo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.Date;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "USER")

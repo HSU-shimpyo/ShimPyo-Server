@@ -1,6 +1,6 @@
-package com.hsu.shimpyoo.global.user.repository;
+package com.hsu.shimpyoo.domain.user.repository;
 
-import com.hsu.shimpyoo.global.entity.User;
+import com.hsu.shimpyoo.domain.user.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

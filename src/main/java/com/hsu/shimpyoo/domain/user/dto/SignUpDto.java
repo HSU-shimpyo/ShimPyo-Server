@@ -1,7 +1,6 @@
-package com.hsu.shimpyoo.global.user.dto;
+package com.hsu.shimpyoo.domain.user.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.hsu.shimpyoo.global.entity.User;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
