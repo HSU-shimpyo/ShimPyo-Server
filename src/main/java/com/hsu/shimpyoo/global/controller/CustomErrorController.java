@@ -21,27 +21,27 @@ public class CustomErrorController implements ErrorController {
             int statusCode = Integer.parseInt(status.toString());
             if(statusCode == 400) {
                 return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                        .body(new CustomAPIResponse<>(HttpStatus.BAD_REQUEST.value(), null, "잘못된 요청입니다,"));
+                        .body(new CustomAPIResponse<>(HttpStatus.BAD_REQUEST.value(), false, null, "잘못된 요청입니다,"));
             }
             else if(statusCode == 403) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                        .body(new CustomAPIResponse<>(HttpStatus.FORBIDDEN.value(), null, "접근이 금지되었습니다."));
+                        .body(new CustomAPIResponse<>(HttpStatus.FORBIDDEN.value(), false, null, "접근이 금지되었습니다."));
             }
             else if(statusCode == 404) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new CustomAPIResponse<>(HttpStatus.NOT_FOUND.value(), null, "요청 경로를 찾을 수 없습니다."));
+                        .body(new CustomAPIResponse<>(HttpStatus.NOT_FOUND.value(), false, null, "요청 경로를 찾을 수 없습니다."));
             }
             else if(statusCode == 405) {
                 return ResponseEntity.status(HttpStatus.METHOD_NOT_ALLOWED)
-                        .body(new CustomAPIResponse<>(HttpStatus.METHOD_NOT_ALLOWED.value(), null, "허용되지 않는 메소드입니다."));
+                        .body(new CustomAPIResponse<>(HttpStatus.METHOD_NOT_ALLOWED.value(), false, null, "허용되지 않는 메소드입니다."));
             }
             else if(statusCode == 500) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new CustomAPIResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, "서버 에러가 발생하였습니다."));
+                        .body(new CustomAPIResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), false, null, "서버 에러가 발생하였습니다."));
             }
         }
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new CustomAPIResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), null, "알 수 없는 에러"));
+                .body(new CustomAPIResponse<>(HttpStatus.INTERNAL_SERVER_ERROR.value(), false, null, "알 수 없는 에러"));
     }
 }
