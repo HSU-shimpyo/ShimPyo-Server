@@ -1,6 +1,10 @@
 package com.hsu.shimpyoo.domain.hospital.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalRequestDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalResponseDto;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -8,6 +12,7 @@ import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -36,7 +41,7 @@ public class HospitalServiceImpl implements HospitalService {
                 "&page=" + hospitalRequestDto.getPage() +
                 "&size="+ hospitalRequestDto.getSize() +
                 "&radius="+2000+ // 반경 2km 이내
-                "&sort=accuracy"+ // 정확도 순은 accuracy, 거리순은 distance
+                "&sort=distance"+ // 정확도 순은 accuracy, 거리순은 distance
                 "&x=" + hospitalRequestDto.getLatitude() +
                 "&y=" + hospitalRequestDto.getLongitude();
 
@@ -54,12 +59,35 @@ public class HospitalServiceImpl implements HospitalService {
 
         // 성공 시 응답
         if (response.getStatusCode().is2xxSuccessful()) {
-            CustomAPIResponse<String> customResponse = CustomAPIResponse.createSuccess(
-                    response.getStatusCode().value(), // status
-                    response.getBody(), // data
+            ObjectMapper objectMapper = new ObjectMapper(); // Json 파싱
+            JsonNode root = null;
+            try {
+                root = objectMapper.readTree(response.getBody());
+            } catch (JsonProcessingException e) {
+                throw new RuntimeException("Json 파싱 중 오류가 발생했습니다.");
+            }
+            JsonNode documents = root.path("documents");
+
+            List<HospitalResponseDto> hospitalList = new ArrayList<>();
+            for (JsonNode node : documents) {
+                HospitalResponseDto hospital = new HospitalResponseDto();
+                hospital.setHospitalName(node.path("place_name").asText());
+                hospital.setHospitalAddress(node.path("road_address_name").asText());
+                hospital.setHospitalPhone(node.path("phone").asText());
+                hospital.setHospitalUrl(node.path("place_url").asText());
+                hospital.setLongitude(node.path("x").asText());
+                hospital.setLatitude(node.path("y").asText());
+                hospitalList.add(hospital);
+            }
+
+
+            CustomAPIResponse<List<HospitalResponseDto>> customResponse = CustomAPIResponse.createSuccess(
+                    HttpStatus.OK.value(), // status
+                    hospitalList, // data
                     "호흡기내과 목록 검색에 성공했습니다." // message
             );
             return ResponseEntity.ok(customResponse);
+
         } else {
             // 실패 시 응답
             CustomAPIResponse<String> customResponse = CustomAPIResponse.createFailWithout(
