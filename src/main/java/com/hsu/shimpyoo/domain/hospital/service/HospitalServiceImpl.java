@@ -35,13 +35,13 @@ public class HospitalServiceImpl implements HospitalService {
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
-        String baseUrl = "https://dapi.kakao.com/v2/local/search/category.json?" +
+        String baseUrl = "https://dapi.kakao.com/v2/local/search/keyword.json?" +
                 "query=호흡기내과" +
                 "&category_group_code=HP8" + // 병원 코드는 HP8
                 "&page=" + hospitalRequestDto.getPage() +
                 "&size="+ hospitalRequestDto.getSize() +
                 "&radius="+2000+ // 반경 2km 이내
-                "&sort=distance"+ // 정확도 순은 accuracy, 거리순은 distance
+                "&sort=accuracy"+ // 정확도 순은 accuracy, 거리순은 distance
                 "&x=" + hospitalRequestDto.getLongitude()+ // x값은 Longitude
                 "&y=" + hospitalRequestDto.getLatitude(); // y값은 Latitude
 
