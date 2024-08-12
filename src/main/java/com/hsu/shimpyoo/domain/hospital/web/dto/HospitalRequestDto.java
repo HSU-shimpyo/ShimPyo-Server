@@ -23,6 +23,8 @@ public class HospitalRequestDto {
     // 한 페이지에 출력할 목록의 수 -> 기본 값을 10으로 설정
     private int size = 10;
 
+    public HospitalRequestDto() {}
+
     public HospitalRequestDto(Double latitude, Double longitude, int page, int size) {
         this.latitude = latitude;
         this.longitude = longitude;
