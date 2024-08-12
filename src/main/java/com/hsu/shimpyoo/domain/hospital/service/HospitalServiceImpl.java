@@ -26,7 +26,7 @@ public class HospitalServiceImpl implements HospitalService {
         HttpHeaders headers = new HttpHeaders(); // 요청 매개변수 설정
         headers.setAccept(List.of(MediaType.APPLICATION_JSON)); // Accept 헤더 설정
         headers.setContentType(MediaType.APPLICATION_JSON); // Content Type 헤더 설정
-        headers.set("Authorization", "KakaoAK"+apiKey);
+        headers.set("Authorization", "KakaoAK "+apiKey);
 
         HttpEntity<String> entity = new HttpEntity<>("", headers);
 
