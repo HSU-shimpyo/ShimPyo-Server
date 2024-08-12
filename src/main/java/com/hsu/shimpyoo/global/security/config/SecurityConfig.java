@@ -31,6 +31,7 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/signUp", "/api/signIn").permitAll() // 로그인 및 회원가입 요청 제외
+                        .requestMatchers(("/api/hospital/**")).permitAll() // 테스트를 위해 허용
                         .anyRequest().authenticated()) // 그 외 요청은 인증 필요
                 .addFilterBefore(new JwtTokenFilter(jwtTokenProvider), UsernamePasswordAuthenticationFilter.class)
                 .build();
