@@ -11,11 +11,11 @@ public class HospitalRequestDto {
 
     // 현재 위치의 경도 (x)
     @NotNull(message="경도를 입력해주세요.")
-    private double longitude;
+    private Double longitude;
 
     // 현재 위치의 위도 (y)
     @NotNull(message = "위도를 입력해주세요.")
-    private double latitude;
+    private Double latitude;
 
     // 현재 페이지 번호 -> 기본 값을 1로 설정
     private int page = 1;
@@ -23,7 +23,7 @@ public class HospitalRequestDto {
     // 한 페이지에 출력할 목록의 수 -> 기본 값을 10으로 설정
     private int size = 10;
 
-    public HospitalRequestDto(double latitude, double longitude, int page, int size) {
+    public HospitalRequestDto(Double latitude, Double longitude, int page, int size) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.page = page;
