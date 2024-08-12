@@ -20,8 +20,8 @@ public class HospitalResponseDto {
     private String hospitalUrl;
 
     // 병원 경도 (x)
-    private double longitude;
+    private Double longitude;
 
     // 병원 위도 (y)
-    private double latitude;
+    private Double latitude;
 }
