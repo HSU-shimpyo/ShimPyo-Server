@@ -75,8 +75,8 @@ public class HospitalServiceImpl implements HospitalService {
                 hospital.setHospitalAddress(node.path("road_address_name").asText());
                 hospital.setHospitalPhone(node.path("phone").asText());
                 hospital.setHospitalUrl(node.path("place_url").asText());
-                hospital.setLongitude(node.path("x").asText());
-                hospital.setLatitude(node.path("y").asText());
+                hospital.setLongitude(Double.parseDouble(node.path("x").asText()));
+                hospital.setLatitude(Double.parseDouble(node.path("y").asText()));
                 hospitalList.add(hospital);
             }
 
