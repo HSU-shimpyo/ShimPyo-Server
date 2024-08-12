@@ -42,8 +42,8 @@ public class HospitalServiceImpl implements HospitalService {
                 "&size="+ hospitalRequestDto.getSize() +
                 "&radius="+2000+ // 반경 2km 이내
                 "&sort=distance"+ // 정확도 순은 accuracy, 거리순은 distance
-                "&x=" + hospitalRequestDto.getLatitude() +
-                "&y=" + hospitalRequestDto.getLongitude();
+                "&x=" + hospitalRequestDto.getLongitude()+ // x값은 Longitude
+                "&y=" + hospitalRequestDto.getLatitude(); // y값은 Latitude
 
         // RestTemplate : HTTP 통신을 위한 도구로 RESTful API 웹 서비스와의 상호작용을 쉽게
         // 외부 도메인에서 데이터를 가져오거나 전송할 때 사용되는 스프링 프레임워크의 클래스
