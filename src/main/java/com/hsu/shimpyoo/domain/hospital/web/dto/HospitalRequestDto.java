@@ -9,13 +9,13 @@ import lombok.Setter;
 public class HospitalRequestDto {
     // 현재 위치를 바탕으로 주변 호흡기내과를 조회 및 페이징 처리
 
-    // 현재 위치의 위도
-    @NotNull(message = "위도를 입력해주세요.")
-    private double latitude;
-
-    // 현재 위치의 경도
+    // 현재 위치의 경도 (x)
     @NotNull(message="경도를 입력해주세요.")
     private double longitude;
+
+    // 현재 위치의 위도 (y)
+    @NotNull(message = "위도를 입력해주세요.")
+    private double latitude;
 
     // 현재 페이지 번호 -> 기본 값을 1로 설정
     private int page = 1;
