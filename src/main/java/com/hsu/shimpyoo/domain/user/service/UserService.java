@@ -26,7 +26,7 @@ public class UserService {
 
     @Transactional
     public ResponseEntity<CustomAPIResponse<Map<String, String>>> signUp(SignUpDto dto) {
-        if (userRepository.findByUserId(dto.getUserId()).isPresent()) {
+        if (userRepository.findByLoginId(dto.getLoginId()).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT).body(
                     CustomAPIResponse.createFailWithout(409, "이미 존재하는 아이디입니다.")
             );
@@ -37,7 +37,7 @@ public class UserService {
         userRepository.save(user);
 
         // Access token과 Refresh token 생성
-        String accessToken = jwtTokenProvider.createToken(user.getUserId());
+        String accessToken = jwtTokenProvider.createToken(user.getLoginId());
 
         // 응답 데이터 생성
         Map<String, String> tokens = new HashMap<>();
@@ -53,7 +53,7 @@ public class UserService {
     public ResponseEntity<CustomAPIResponse<Map<String, String>>> signIn(SignInReqDto dto) {
         try {
             // 사용자가 없는 경우
-            User user = userRepository.findByUserId(dto.getUserId())
+            User user = userRepository.findByLoginId(dto.getLoginId())
                     .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다."));
 
             // 패스워드 검증
@@ -64,7 +64,7 @@ public class UserService {
             }
 
             // Access token 생성
-            String accessToken = jwtTokenProvider.createToken(user.getUserId());
+            String accessToken = jwtTokenProvider.createToken(user.getLoginId());
 
             // 응답 데이터 생성
             Map<String, String> data = new HashMap<>();
