@@ -1,5 +1,6 @@
 package com.hsu.shimpyoo.domain.hospital.entity;
 
+import com.hsu.shimpyoo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,7 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class Hospital {
+public class Hospital extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="hospital_id")
