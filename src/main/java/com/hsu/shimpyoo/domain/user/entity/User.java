@@ -20,8 +20,8 @@ public class User extends BaseEntity {
     @Column(name = "id")
     private Long id; // 사용자 기본 키
 
-    @Column(name = "user_id", nullable = false, unique = true)
-    private String userId; // 아이디
+    @Column(name = "login_id", nullable = false, unique = true)
+    private String loginId; // 아이디
 
     private String password; // 비밀번호
 
@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     public static User toEntity(SignUpDto dto, String encryptedPassword) {
 
         User user = User.builder()
-                .userId(dto.getUserId())
+                .loginId(dto.getLoginId())
                 .password(encryptedPassword)
                 .birth(dto.getBirth())
                 .build();
