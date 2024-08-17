@@ -13,7 +13,7 @@ import java.util.Date;
 @NoArgsConstructor
 public class SignUpDto {
     @NotNull(message = "아이디를 적어주세요.")
-    private String userId;
+    private String loginId;
     @NotNull(message = "비밀번호를 적어주세요.")
     private String password;
     @NotNull(message = "생년월일을 적어주세요.")
