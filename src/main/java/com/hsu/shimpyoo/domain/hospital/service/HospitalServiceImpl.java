@@ -40,10 +40,7 @@ public class HospitalServiceImpl implements HospitalService {
                 "&category_group_code=HP8" + // 병원 코드는 HP8
                 "&page=" + hospitalRequestDto.getPage() +
                 "&size="+ hospitalRequestDto.getSize() +
-                "&radius="+2000+ // 반경 2km 이내
-                "&sort=accuracy"+ // 정확도 순은 accuracy, 거리순은 distance
-                "&x=" + hospitalRequestDto.getLongitude()+ // x값은 Longitude
-                "&y=" + hospitalRequestDto.getLatitude(); // y값은 Latitude
+                "&sort=accuracy"; // 정확도 순은 accuracy, 거리순은 distance
 
         // RestTemplate : HTTP 통신을 위한 도구로 RESTful API 웹 서비스와의 상호작용을 쉽게
         // 외부 도메인에서 데이터를 가져오거나 전송할 때 사용되는 스프링 프레임워크의 클래스
@@ -75,8 +72,6 @@ public class HospitalServiceImpl implements HospitalService {
                 hospital.setHospitalAddress(node.path("road_address_name").asText());
                 hospital.setHospitalPhone(node.path("phone").asText());
                 hospital.setHospitalUrl(node.path("place_url").asText());
-                hospital.setLongitude(Double.parseDouble(node.path("x").asText()));
-                hospital.setLatitude(Double.parseDouble(node.path("y").asText()));
                 hospitalList.add(hospital);
             }
 

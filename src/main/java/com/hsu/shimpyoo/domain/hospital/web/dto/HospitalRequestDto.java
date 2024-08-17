@@ -7,15 +7,7 @@ import lombok.Setter;
 @Getter
 @Setter
 public class HospitalRequestDto {
-    // 현재 위치를 바탕으로 주변 호흡기내과를 조회 및 페이징 처리
-
-    // 현재 위치의 경도 (x)
-    @NotNull(message="경도를 입력해주세요.")
-    private Double longitude;
-
-    // 현재 위치의 위도 (y)
-    @NotNull(message = "위도를 입력해주세요.")
-    private Double latitude;
+    // 호흡기내과를 조회 및 페이징 처리
 
     // 현재 페이지 번호 -> 기본 값을 1로 설정
     private int page = 1;
@@ -25,9 +17,7 @@ public class HospitalRequestDto {
 
     public HospitalRequestDto() {}
 
-    public HospitalRequestDto(Double latitude, Double longitude, int page, int size) {
-        this.latitude = latitude;
-        this.longitude = longitude;
+    public HospitalRequestDto(int page, int size) {
         this.page = page;
         this.size = size;
     }
