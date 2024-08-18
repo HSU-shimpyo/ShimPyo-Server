@@ -34,36 +34,37 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 삽입하려는 병원 키워드
-        List<String> keywords = List.of("호흡기내과", "알레르기", "천식", "기관지", "호흡기", "폐질환", "대학병원", "종합병원");
+        if(hospitalRepository.count()==0) {
+            // 삽입하려는 병원 키워드
+            List<String> keywords = List.of("호흡기내과", "알레르기", "천식", "기관지", "호흡기", "폐질환", "대학병원", "종합병원");
 
 
+            // 중복된 병원 이름과 주소를 담을 Set
+            Set<String> existingHospitalKeys = new HashSet<>();
 
-        // 중복된 병원 이름과 주소를 담을 Set
-        Set<String> existingHospitalKeys = new HashSet<>();
+            for (String keyword : keywords) {
+                List<Hospital> hospitalsToInsert = getAllHospital(keyword);
 
-        for (String keyword : keywords) {
-            List<Hospital> hospitalsToInsert = getAllHospital(keyword);
+                // 가져온 병원 정보를 필터링
+                List<Hospital> filteredHospitals = hospitalsToInsert.stream()
+                        .filter(hospital -> {
+                            String key = hospital.getHospitalName();
+                            // 병원 정보가 이미 존재하는지
+                            if (existingHospitalKeys.contains(key)) {
+                                return false;
+                            }
+                            existingHospitalKeys.add(key);
+                            return true;
+                        })
+                        .collect(Collectors.toList());
 
-            // 가져온 병원 정보를 필터링
-            List<Hospital> filteredHospitals = hospitalsToInsert.stream()
-                    .filter(hospital -> {
-                        String key = hospital.getHospitalName();
-                        // 병원 정보가 이미 존재하는지
-                        if (existingHospitalKeys.contains(key)) {
-                            return false;
-                        }
-                        existingHospitalKeys.add(key);
-                        return true;
-                    })
-                    .collect(Collectors.toList());
-
-            // 필터링된 병원 정보만 DB에 저장
-            if (!filteredHospitals.isEmpty()) {
-                hospitalRepository.saveAll(filteredHospitals);
+                // 필터링된 병원 정보만 DB에 저장
+                if (!filteredHospitals.isEmpty()) {
+                    hospitalRepository.saveAll(filteredHospitals);
+                }
             }
+            System.out.println("병원 정보가 데이터베이스에 삽입되었습니다.");
         }
-        System.out.println("병원 정보가 데이터베이스에 삽입되었습니다.");
     }
 
     // 병원 정보를 db에 삽입
