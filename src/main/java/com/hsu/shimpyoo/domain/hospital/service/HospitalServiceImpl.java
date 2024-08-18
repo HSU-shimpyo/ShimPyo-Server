@@ -7,7 +7,11 @@ import com.hsu.shimpyoo.domain.hospital.entity.Hospital;
 import com.hsu.shimpyoo.domain.hospital.repository.HospitalRepository;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalRequestDto;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalResponseDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitRequestDto;
+import com.hsu.shimpyoo.domain.user.entity.User;
+import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
+import com.hsu.shimpyoo.global.security.service.MyUserDetails;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -17,11 +21,13 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class HospitalServiceImpl implements HospitalService {
     private final HospitalRepository hospitalRepository;
+    private final UserRepository userRepository;
 
     // 병원 검색
     @Override
