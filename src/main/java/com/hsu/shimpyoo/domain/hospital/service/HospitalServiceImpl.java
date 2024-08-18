@@ -30,8 +30,8 @@ public class HospitalServiceImpl implements HospitalService {
         List<Hospital> hospitals = hospitalRepository.findByHospitalNameContaining(hospitalRequestDto.getKeyword());
 
         if (hospitals.isEmpty()) { // 검색 결과가 없을 경우
-            CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, null, "검색 결과가 없습니다.");
-            return ResponseEntity.status(HttpStatus.OK).body(res);
+            CustomAPIResponse<Object> res = CustomAPIResponse.createFailWithout(404, "검색 결과가 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
         } else { // 검색 결과가 존재할 경우
             CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, hospitals, "조건에 맞는 검색 결과를 불러왔습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(res);

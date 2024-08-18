@@ -35,7 +35,9 @@ public class DataInitializer implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         // 삽입하려는 병원 키워드
-        List<String> keywords = List.of("호흡기내과", "알레르기", "대학병원", "종합병원");
+        List<String> keywords = List.of("호흡기내과", "알레르기", "천식", "기관지", "호흡기", "폐질환", "대학병원", "종합병원");
+
+
 
         // 중복된 병원 이름과 주소를 담을 Set
         Set<String> existingHospitalKeys = new HashSet<>();
@@ -82,11 +84,12 @@ public class DataInitializer implements CommandLineRunner {
 
         do {
             String baseUrl = "https://dapi.kakao.com/v2/local/search/keyword.json?" +
-                    "query=" + keyword+ // 검색할 항목
+                    "query="+keyword+ // 검색할 항목
                     "&category_group_code=HP8" + // 병원 코드는 HP8
-                    "&sort=accuracy" +
+                    "&sort=accuracy" + // 정확도 순은 accuracy, 거리순은 distance
                     "&page=" + page +
-                    "&size=15"; // 정확도 순은 accuracy, 거리순은 distance
+                    "&size=15";
+
 
             HttpEntity<String> entity = new HttpEntity<>("", headers);
             // exchange() : 헤더를 생성하고, 모든 요청 방법을 허용 -> Http 요청 및 응답 처리

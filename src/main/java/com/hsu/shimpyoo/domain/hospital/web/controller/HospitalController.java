@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 public class HospitalController {
     private final HospitalService hospitalService;
 
-    @PostMapping("/getAllHospital")
+    @PostMapping("/searchHospital")
     public ResponseEntity<CustomAPIResponse<?>> searchHospitals(@Valid @RequestBody HospitalRequestDto hospitalRequestDto){
        ResponseEntity<CustomAPIResponse<?>> result= hospitalService.searchHospital(hospitalRequestDto);
        return result;
