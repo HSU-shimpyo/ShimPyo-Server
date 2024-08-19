@@ -4,8 +4,9 @@ import com.hsu.shimpyoo.domain.hospital.entity.Hospital;
 import com.hsu.shimpyoo.domain.hospital.entity.HospitalVisit;
 import com.hsu.shimpyoo.domain.hospital.repository.HospitalRepository;
 import com.hsu.shimpyoo.domain.hospital.repository.HospitalVisitRepository;
-import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalRequestDto;
-import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitRequestDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchRequestDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchResponseDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitSetRequestDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
@@ -19,6 +20,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,22 +32,31 @@ public class HospitalServiceImpl implements HospitalService {
 
     // 병원 검색
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> searchHospital(HospitalRequestDto hospitalRequestDto) {
+    public ResponseEntity<CustomAPIResponse<?>> searchHospital(HospitalSearchRequestDto hospitalSearchRequestDto) {
         // 키워드를 기반으로 병원을 검색
-        List<Hospital> hospitals = hospitalRepository.findByHospitalNameContaining(hospitalRequestDto.getKeyword());
+        List<Hospital> hospitals = hospitalRepository.findByHospitalNameContaining(hospitalSearchRequestDto.getKeyword());
 
         if (hospitals.isEmpty()) { // 검색 결과가 없을 경우
             CustomAPIResponse<Object> res = CustomAPIResponse.createFailWithout(404, "검색 결과가 없습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
         } else { // 검색 결과가 존재할 경우
-            CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, hospitals, "조건에 맞는 검색 결과를 불러왔습니다.");
+            List<HospitalSearchResponseDto> hospitalSearchResponseDto = hospitals.stream()
+                    .map(hospital -> HospitalSearchResponseDto.builder()
+                            .hospitalId(hospital.getHospitalId()) // 병원 ID
+                            .hospitalName(hospital.getHospitalName()) // 병원 이름
+                            .hospitalAddress(hospital.getHospitalAddress()) // 병원 주소
+                            .hospitalPhone(hospital.getHospitalPhone()) // 병원 전화번호
+                            .build())
+                    .toList();
+            CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, hospitalSearchResponseDto ,
+                    "조건에 맞는 검색 결과를 불러왔습니다.");
             return ResponseEntity.status(HttpStatus.OK).body(res);
         }
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> setVisitHospital(HospitalVisitRequestDto hospitalVisitRequestDto) {
-        logger.info("Starting setVisitHospital method with request: {}", hospitalVisitRequestDto);
+    public ResponseEntity<CustomAPIResponse<?>> setVisitHospital(HospitalVisitSetRequestDto hospitalVisitSetRequestDto) {
+        logger.info("Starting setVisitHospital method with request: {}", hospitalVisitSetRequestDto);
         // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
         String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -54,13 +65,13 @@ public class HospitalServiceImpl implements HospitalService {
                 .orElseThrow(()->new UsernameNotFoundException("존재하지 않는 사용자입니다."));
 
         // 병원 존재 여부 확인
-        Hospital isExistHospital=hospitalRepository.findById(hospitalVisitRequestDto.getHospitalId())
+        Hospital isExistHospital=hospitalRepository.findById(hospitalVisitSetRequestDto.getHospitalId())
                 .orElseThrow(()->new EntityNotFoundException("존재하지 않는 병원입니다."));
 
         HospitalVisit hospitalVisit=HospitalVisit.builder()
                 .userId(isExistUser)
                 .hospitalId(isExistHospital)
-                .visitTime(hospitalVisitRequestDto.getReservationDateTime())
+                .visitTime(hospitalVisitSetRequestDto.getReservationDateTime())
                 .build();
 
         hospitalVisitRepository.save(hospitalVisit);

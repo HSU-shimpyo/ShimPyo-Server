@@ -1,6 +1,6 @@
 package com.hsu.shimpyoo.domain.hospital.entity;
 
-import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalResponseDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchResponseDto;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -25,11 +25,11 @@ public class Hospital {
     @Column(name="hospital_address")
     private String hospitalAddress; // 병원 주소
 
-    public static Hospital toEntity(HospitalResponseDto hospitalResponseDto) {
+    public static Hospital toEntity(HospitalSearchResponseDto hospitalSearchResponseDto) {
         Hospital hospitals = Hospital.builder()
-                .hospitalName(hospitalResponseDto.getHospitalName())
-                .hospitalAddress(hospitalResponseDto.getHospitalAddress())
-                .hospitalPhone(hospitalResponseDto.getHospitalPhone())
+                .hospitalName(hospitalSearchResponseDto.getHospitalName())
+                .hospitalAddress(hospitalSearchResponseDto.getHospitalAddress())
+                .hospitalPhone(hospitalSearchResponseDto.getHospitalPhone())
                 .build();
 
         return hospitals;
