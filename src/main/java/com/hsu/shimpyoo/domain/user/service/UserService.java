@@ -1,5 +1,7 @@
 package com.hsu.shimpyoo.domain.user.service;
 
+import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
+import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.user.dto.SignInReqDto;
 import com.hsu.shimpyoo.domain.user.dto.SignUpDto;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
@@ -21,6 +23,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
+    private final BreathingRepository breathingRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -32,11 +35,20 @@ public class UserService {
             );
         }
 
-        String encryptedPassword = passwordEncoder.encode(dto.getPassword());
+        String encryptedPassword = passwordEncoder.encode(dto.getPassword()); // 비밀번호 암호화
+
+        // User 엔티티 생성 및 저장
         User user = User.toEntity(dto, encryptedPassword);
         userRepository.save(user);
 
-        // Access token과 Refresh token 생성
+        // Breathing 엔티티 생성 및 저장 (회원가입 시 pef 값을 breathingRate로 설정)
+        Breathing breathing = Breathing.builder()
+                .userId(user)
+                .breathingRate(dto.getPef().floatValue()) // pef 값을 breathingRate로 설정
+                .build();
+        breathingRepository.save(breathing);
+
+        // Access token 생성
         String accessToken = jwtTokenProvider.createToken(user.getLoginId());
 
         // 응답 데이터 생성
