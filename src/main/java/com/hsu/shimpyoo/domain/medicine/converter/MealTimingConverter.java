@@ -28,6 +28,6 @@ public class MealTimingConverter implements AttributeConverter<MealTiming, Strin
             }
         }
 
-        throw new IllegalArgumentException("Unknown MealTiming: " + description);
+        throw new IllegalArgumentException("잘못된 값입니다: " + description);
     }
 }

@@ -31,7 +31,7 @@ public class Medicine extends BaseEntity {
     private MealTiming mealTiming; // 식전 또는 식후
 
     @Column(name = "intake_timing", nullable = false)
-    private Integer intakeTiming; // 약 복용 시간
+    private Integer intakeTiming; // 약 복용 시간 (곧바로 = 0, 30분 = 30, 1시간 = 60, 2시간 = 120)
 
     @Column(name = "breakfast")
     private LocalTime breakfast; // 아침 식사
