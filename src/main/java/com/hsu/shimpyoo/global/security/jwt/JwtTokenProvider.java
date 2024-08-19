@@ -19,6 +19,7 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -61,7 +62,9 @@ public class JwtTokenProvider {
     public void setSecurityContext(String token) {
         Claims claims = getClaimsFromToken(token);
         List<String> roles = claims.get("roles", List.class);
-        List<GrantedAuthority> authorities = roles.stream()
+        List<GrantedAuthority> authorities = (roles == null)
+                ? Collections.emptyList()
+                : roles.stream()
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
