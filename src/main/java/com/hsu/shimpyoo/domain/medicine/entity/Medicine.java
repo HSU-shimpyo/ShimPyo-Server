@@ -1,6 +1,5 @@
 package com.hsu.shimpyoo.domain.medicine.entity;
 
-import com.hsu.shimpyoo.domain.medicine.converter.MealTimingConverter;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.entity.BaseEntity;
 import jakarta.persistence.*;
@@ -25,7 +24,7 @@ public class Medicine extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User userId; // 사용자 기본키
 
-    @Convert(converter = MealTimingConverter.class)
+    @Enumerated(EnumType.STRING)
     @Column(name = "meal_timing", nullable = false)
     private MealTiming mealTiming; // 식전 또는 식후
 
