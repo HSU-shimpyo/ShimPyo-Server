@@ -10,17 +10,15 @@ import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitSetRequestDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -61,17 +59,24 @@ public class HospitalServiceImpl implements HospitalService {
         String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
 
         // 사용자 존재 여부 확인
-        User isExistUser=userRepository.findByLoginId(loginId)
-                .orElseThrow(()->new UsernameNotFoundException("존재하지 않는 사용자입니다."));
+        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
+        if(isExistUser.isEmpty()){
+            CustomAPIResponse<Object> res=CustomAPIResponse.createFailWithout(404, "사용자를 찾을 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+        }
+
 
         // 병원 존재 여부 확인
-        Hospital isExistHospital=hospitalRepository.findById(hospitalVisitSetRequestDto.getHospitalId())
-                .orElseThrow(()->new EntityNotFoundException("존재하지 않는 병원입니다."));
+        Optional<Hospital> isExistHospital=hospitalRepository.findById(hospitalVisitSetRequestDto.getHospitalId());
+        if(isExistHospital.isEmpty()){
+            CustomAPIResponse<Object> res=CustomAPIResponse.createFailWithout(404, "존재하지 않는 병원입니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+        }
 
         HospitalVisit hospitalVisit=HospitalVisit.builder()
-                .userId(isExistUser)
-                .hospitalId(isExistHospital)
-                .visitTime(hospitalVisitSetRequestDto.getReservationDateTime())
+                .userId(isExistUser.get())
+                .hospitalId(isExistHospital.get())
+                .visitTime(hospitalVisitSetRequestDto.timeFormat())
                 .build();
 
         hospitalVisitRepository.save(hospitalVisit);
