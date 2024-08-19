@@ -20,9 +20,9 @@ public class MyUserDetails implements UserDetailsService {
     private final UserRepository userRepository;
 
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String loginId) throws UsernameNotFoundException {
 
-        User user = userRepository.findByLoginId(username)
+        User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
 
         // 권한 정보 추가
@@ -30,5 +30,6 @@ public class MyUserDetails implements UserDetailsService {
 
         return new org.springframework.security.core.userdetails.User(user.getLoginId(), user.getPassword(), authorities);
     }
+
 }
 
