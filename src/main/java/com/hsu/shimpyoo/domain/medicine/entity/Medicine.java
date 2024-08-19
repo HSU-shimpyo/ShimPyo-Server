@@ -1,5 +1,6 @@
 package com.hsu.shimpyoo.domain.medicine.entity;
 
+import com.hsu.shimpyoo.domain.medicine.converter.MealTimingConverter;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.entity.BaseEntity;
 import jakarta.persistence.*;
