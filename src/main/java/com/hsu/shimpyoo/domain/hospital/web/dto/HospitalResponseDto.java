@@ -17,6 +17,4 @@ public class HospitalResponseDto {
     // 병원 전화번호
     private String hospitalPhone;
 
-    // 병원 위치 url
-    private String hospitalUrl;
 }

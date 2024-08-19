@@ -1,7 +1,6 @@
 package com.hsu.shimpyoo.domain.hospital.entity;
 
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalResponseDto;
-import com.hsu.shimpyoo.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -11,7 +10,7 @@ import lombok.*;
 @Builder
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor(access = AccessLevel.PROTECTED)
-public class Hospital extends BaseEntity {
+public class Hospital {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name="hospital_id")
@@ -27,13 +26,13 @@ public class Hospital extends BaseEntity {
     private String hospitalAddress; // 병원 주소
 
     public static Hospital toEntity(HospitalResponseDto hospitalResponseDto) {
-        Hospital hospital = Hospital.builder()
+        Hospital hospitals = Hospital.builder()
                 .hospitalName(hospitalResponseDto.getHospitalName())
                 .hospitalAddress(hospitalResponseDto.getHospitalAddress())
                 .hospitalPhone(hospitalResponseDto.getHospitalPhone())
                 .build();
 
-        return hospital;
+        return hospitals;
 
     }
 }

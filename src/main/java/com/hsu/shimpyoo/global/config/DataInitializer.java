@@ -117,7 +117,6 @@ public class DataInitializer implements CommandLineRunner {
                                 .hospitalName(hospitalName)
                                 .hospitalAddress(hospitalAddress)
                                 .hospitalPhone(node.path("phone").asText())
-                                .hospitalUrl(node.path("place_url").asText())
                                 .build();
 
                         Hospital hospital = Hospital.toEntity(hospitalResponseDto);
