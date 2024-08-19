@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @NoArgsConstructor
-public class HospitalVisitRequestDto {
+public class HospitalVisitSetRequestDto {
     // 병원 기본키
     @NotNull(message = "병원 기본키를 입력해주세요.")
     private Long hospitalId;

@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hsu.shimpyoo.domain.hospital.entity.Hospital;
 import com.hsu.shimpyoo.domain.hospital.repository.HospitalRepository;
-import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalResponseDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
@@ -113,13 +113,13 @@ public class DataInitializer implements CommandLineRunner {
                         String hospitalName = node.path("place_name").asText();
                         String hospitalAddress = node.path("road_address_name").asText();
 
-                        HospitalResponseDto hospitalResponseDto = HospitalResponseDto.builder()
+                        HospitalSearchResponseDto hospitalSearchResponseDto = HospitalSearchResponseDto.builder()
                                 .hospitalName(hospitalName)
                                 .hospitalAddress(hospitalAddress)
                                 .hospitalPhone(node.path("phone").asText())
                                 .build();
 
-                        Hospital hospital = Hospital.toEntity(hospitalResponseDto);
+                        Hospital hospital = Hospital.toEntity(hospitalSearchResponseDto);
                         hospitals.add(hospital);
 
                     }
