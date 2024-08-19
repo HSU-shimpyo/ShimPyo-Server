@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class HospitalRequestDto {
+public class HospitalSearchRequestDto {
     // 키워드
     private String keyword;
 
