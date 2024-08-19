@@ -14,9 +14,8 @@ import java.time.LocalDateTime;
 public class HospitalVisitRequestDto {
     // 병원 기본키
     @NotNull(message = "병원 기본키를 입력해주세요.")
-    private String hospitalId;
+    private Long hospitalId;
 
-    // 방문 날짜 및 시간
     @NotNull(message = "예약 날짜와 시간을 입력해주세요.")
     @Future(message = "예약 날짜 및 시간은 현재보다 미래여야 합니다.")
     private LocalDateTime reservationDateTime;
