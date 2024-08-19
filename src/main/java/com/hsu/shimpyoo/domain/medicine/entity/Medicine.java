@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalTime;
-import java.util.Date;
 
 @Entity
 @Table(name = "MEDICINE")
@@ -42,4 +41,29 @@ public class Medicine extends BaseEntity {
     @Column(name = "dinner")
     private LocalTime dinner; // 저녁 식사
 
+    // 약 복용 알림 시간을 계산하는 메서드
+    public LocalTime calculateIntakeTime(MealType mealType) {
+        LocalTime mealTime = null;
+
+        switch (mealType) {
+            case BREAKFAST:
+                mealTime = breakfast;
+                break;
+            case LUNCH:
+                mealTime = lunch;
+                break;
+            case DINNER:
+                mealTime = dinner;
+                break;
+        }
+
+        // 식사 시간이 null이면 null 반환
+        if (mealTime == null) {
+            return null;
+        }
+
+        // 식사 시간에 따른 알림 시간 계산
+        int adjustment = mealTiming == MealTiming.BEFORE_MEAL ? -intakeTiming : intakeTiming;
+        return mealTime.plusMinutes(adjustment);
+    }
 }
