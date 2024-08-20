@@ -9,7 +9,6 @@ import java.time.LocalTime;
 @Getter
 @Setter
 public class MedicineRequestDto {
-    private Long userId;
     private MealTiming mealTiming;
     private Integer intakeTiming;
     private LocalTime breakfast;
