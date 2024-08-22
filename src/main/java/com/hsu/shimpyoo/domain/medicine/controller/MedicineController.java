@@ -1,7 +1,7 @@
 package com.hsu.shimpyoo.domain.medicine.controller;
 
 import com.hsu.shimpyoo.domain.medicine.dto.MedicineRequestDto;
-import com.hsu.shimpyoo.domain.medicine.service.MedicineServiceImpl;
+import com.hsu.shimpyoo.domain.medicine.service.MedicineService;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
@@ -9,16 +9,13 @@ import com.hsu.shimpyoo.global.security.jwt.util.AuthenticationUserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/medicine")
 @RequiredArgsConstructor
 public class MedicineController {
-    private final MedicineServiceImpl medicineService;
+    private final MedicineService medicineService;
     private final AuthenticationUserUtils authenticationUserUtils;
     private final UserRepository userRepository;
 
@@ -32,5 +29,14 @@ public class MedicineController {
 
         // 약 복용 알림 시간 설정
         return medicineService.MedicineTimeSetting(dto, user);
+    }
+
+    @GetMapping("/getTimeLeft")
+    public ResponseEntity<CustomAPIResponse<?>> getMedicineTimeLeft() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        return medicineService.getMedicineTimeLeft(user);
     }
 }
