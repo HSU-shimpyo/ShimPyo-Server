@@ -1,0 +1,74 @@
+name: Shimpyoo CI/CD
+
+# 워크플로우 트리거 조건 설정
+on:
+  push:
+    branches: [ "dev" ]
+  pull_request:
+    branches: [ "dev" ]
+
+# 권한 설정
+permissions:
+  contents: read
+
+# Job 정의
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 현재 repository에서 코드를 워크플로우 환경으로 가져오기
+    - uses: actions/checkout@v3
+    
+    # JDK 17 환경 설정
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+
+    # application.yml 생성
+    - name: Create application.yml
+      run: echo "$APPLICATION_YML" | envsubst > ./src/main/resources/application.yml
+      env:
+        APPLICATION_YML: ${{ secrets.APPLICATION_YML }}
+
+    # Gradle Build를 위한 권한 부여
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
+
+    # Gradle을 통해 소스를 빌드 (테스트 제외)
+    - name: Build with Gradle
+      run: ./gradlew clean build -x test
+
+    # Docker 이미지 빌드 및 Docker Hub로 푸시
+    - name: Docker build & push to Docker Hub
+      run: |
+        docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+        docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/shimpyoo:latest .
+        docker push ${{ secrets.DOCKER_USERNAME }}/shimpyoo:latest
+
+    # 배포 작업 (SSH를 통해 EC2 인스턴스에 접속)
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }} # EC2 인스턴스 퍼블릭 DNS
+        username: ec2-user
+        key: ${{ secrets.PRIVATE_KEY }} # PEM 키
+        port: 22
+        script: |
+          # 최신 Docker 이미지 가져오기
+          docker pull ${{ secrets.DOCKER_USERNAME }}/shimpyoo:latest
+          
+          # 기존 컨테이너 중지 및 제거
+          docker stop shimpyoo || true
+          docker rm shimpyoo || true
+
+          # 새 컨테이너 실행 (로그는 syslog로, 포트 8080 매핑)
+          docker run -d --log-driver=syslog --name shimpyoo -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/shimpyoo:latest
+          
+          # 사용되지 않는 종료된 컨테이너 정리
+          docker rm $(docker ps --filter 'status=exited' -a -q)
+          
+          # 사용되지 않는 Docker 이미지 정리
+          docker image prune -f
