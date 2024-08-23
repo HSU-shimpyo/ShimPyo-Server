@@ -28,8 +28,10 @@ jobs:
         distribution: 'temurin'
 
     # application.yml 생성
-    - name: Create application.yml
-      run: echo "$APPLICATION_YML" | envsubst > ./src/main/resources/application.yml
+    - name: Create directories and application.yml
+      run: |
+        mkdir -p ./src/main/resources/
+        echo "$APPLICATION_YML" | envsubst > ./src/main/resources/application.yml
       env:
         APPLICATION_YML: ${{ secrets.APPLICATION_YML }}
 
