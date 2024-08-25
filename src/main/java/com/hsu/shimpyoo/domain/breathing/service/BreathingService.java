@@ -1,50 +1,74 @@
 package com.hsu.shimpyoo.domain.breathing.service;
+import com.hsu.shimpyoo.domain.breathing.dto.BreathingRequestDto;
 import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
+import com.hsu.shimpyoo.domain.user.entity.User;
+import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
 public class BreathingService {
     private final BreathingRepository breathingRepository;
 
-    public String evaluateBreathingRate(Long breathingId) {
-        // Breathing 엔티티를 ID로 조회
-        Breathing oldBreathing = breathingRepository.findById(breathingId)
-                .orElseThrow(() -> new RuntimeException("호흡 기록을 찾을 수 없습니다."));
+    public CustomAPIResponse<Map<String, Object>> calculateBreathingResult(BreathingRequestDto dto, User user) {
+        // 가장 최근의 Breathing 데이터를 userId로 조회
+        Breathing recentBreathing = breathingRepository.findTopByUserIdOrderByCreatedAtDesc(user);
 
-        // first, second, third 중에서 최대값 계산
-        Float maxBreathingRate = Math.max(oldBreathing.getFirst(), Math.max(oldBreathing.getSecond(), oldBreathing.getThird()));
+        // 최대호기량 설정
+        Float maxBreathingRate = Math.max(dto.getFirst(), Math.max(dto.getSecond(), dto.getThird()));
 
-        // 이전의 breathing_rate 가져오기
-        Float previousBreathingRate = oldBreathing.getBreathingRate();
-
-        // 새로운 Breathing 객체 생성 및 데이터 복사
-        Breathing newBreathing = Breathing.builder()
-                .userId(oldBreathing.getUserId())
-                .first(oldBreathing.getFirst())
-                .second(oldBreathing.getSecond())
-                .third(oldBreathing.getThird())
+        // 새로운 Breathing 데이터 저장
+        Breathing breathing = Breathing.builder()
+                .userId(user)
                 .breathingRate(maxBreathingRate)
+                .first(dto.getFirst())
+                .second(dto.getSecond())
+                .third(dto.getThird())
                 .build();
+        breathingRepository.save(breathing);
 
-        // 새로운 기록을 데이터베이스에 저장
-        breathingRepository.save(newBreathing);
+        // 이전 breathingRate 값과 비교하여 상태 결정
+        String status;
+        String rateChangeDirection = "";  // 증가 또는 감소 방향
+        int rateDifferencePercent = 0;
 
-        // 비교를 기반으로 상태 결정
-        if (previousBreathingRate == null) {
-            return "이전 데이터 없음";
-        } else {
-            float percentage = (maxBreathingRate / previousBreathingRate) * 100;
-            if (percentage >= 80) {
-                return "안정";
-            } else if (percentage >= 60) {
-                return "주의";
+        if (recentBreathing != null) {
+            Float previousBreathingRate = recentBreathing.getBreathingRate();
+            rateDifferencePercent = Math.round(((maxBreathingRate - previousBreathingRate) / previousBreathingRate) * 100);
+
+            if (rateDifferencePercent >= 0) {
+                rateChangeDirection = "증가";
             } else {
-                return "위험";
+                rateChangeDirection = "감소";
+                rateDifferencePercent = Math.abs(rateDifferencePercent); // 절대값으로 변환
             }
-        }
-    }
 
+            // 상태 결정 로직 수정
+            float rateChange = ((float) maxBreathingRate / previousBreathingRate) * 100;
+            if (rateChange >= 80) {
+                status = "안정";
+            } else if (rateChange >= 60) {
+                status = "주의";
+            } else {
+                status = "위험";
+            }
+        } else {
+            // 이전 데이터가 없을 때
+            return CustomAPIResponse.createFailWithout(404, "이전 데이터를 찾을 수 없습니다.");
+        }
+
+        // 반환 데이터
+        Map<String, Object> responseData = new LinkedHashMap<>();
+        responseData.put("status", status);
+        responseData.put("breathingRate", maxBreathingRate);
+        responseData.put("rateDifference", rateDifferencePercent + "% " + rateChangeDirection);
+
+        return CustomAPIResponse.createSuccess(200, responseData, "오늘의 쉼 결과 조회에 성공했습니다.");
+    }
 }
