@@ -54,7 +54,6 @@ public class HospitalServiceImpl implements HospitalService {
 
     @Override
     public ResponseEntity<CustomAPIResponse<?>> setVisitHospital(HospitalVisitSetRequestDto hospitalVisitSetRequestDto) {
-        logger.info("Starting setVisitHospital method with request: {}", hospitalVisitSetRequestDto);
         // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
         String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
 
