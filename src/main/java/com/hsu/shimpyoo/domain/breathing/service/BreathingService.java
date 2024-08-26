@@ -6,8 +6,9 @@ import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import java.util.LinkedHashMap;
-import java.util.Map;
+
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -71,5 +72,25 @@ public class BreathingService {
         responseData.put("third", breathing.getThird());
 
         return CustomAPIResponse.createSuccess(200, responseData, "오늘의 쉼 결과 조회에 성공했습니다.");
+    }
+
+    public List<Map<String, Object>> getWeeklyBreathingRates(User user) {
+        LocalDateTime today = LocalDateTime.now();
+        List<Map<String, Object>> weeklyBreathingRates = new ArrayList<>();
+
+        for (int i = 6; i >= 0; i--) {
+            LocalDateTime targetDate = today.minusDays(i);
+            LocalDateTime startOfDay = targetDate.withHour(0).withMinute(0).withSecond(0).withNano(0);
+            LocalDateTime endOfDay = targetDate.withHour(23).withMinute(59).withSecond(59).withNano(999999999);
+
+            Optional<Breathing> breathingOptional = breathingRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(user, startOfDay, endOfDay);
+
+            Map<String, Object> data = new HashMap<>();
+            data.put("date", targetDate.toLocalDate());
+            data.put("breathingRate", breathingOptional.map(Breathing::getBreathingRate).orElse(null));
+            weeklyBreathingRates.add(data);
+        }
+
+        return weeklyBreathingRates;
     }
 }
