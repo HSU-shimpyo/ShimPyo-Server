@@ -21,7 +21,7 @@ public class BreathingController {
     private final UserRepository userRepository;
 
     // 오늘의 쉼 결과
-    @PostMapping("/today/result")
+    @PostMapping("/todayResult")
     public CustomAPIResponse<Map<String, Object>> getTodayBreathingResult(
             @RequestBody BreathingRequestDto dto) {
         // 현재 로그인된 사용자 정보 가져오기
