@@ -68,6 +68,9 @@ public class BreathingService {
         responseData.put("status", status);
         responseData.put("breathingRate", maxBreathingRate);
         responseData.put("rateDifference", rateDifferencePercent + "% " + rateChangeDirection);
+        responseData.put("first", breathing.getFirst());
+        responseData.put("second", breathing.getSecond());
+        responseData.put("third", breathing.getThird());
 
         return CustomAPIResponse.createSuccess(200, responseData, "오늘의 쉼 결과 조회에 성공했습니다.");
     }
