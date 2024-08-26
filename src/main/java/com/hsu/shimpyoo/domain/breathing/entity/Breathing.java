@@ -21,7 +21,16 @@ public class Breathing extends BaseEntity {
     @JoinColumn(name = "user_id", nullable = false)
     private User userId; // 사용자 기본키
 
-    @Column(name = "breathing_rate", nullable = false)
+    @Column(name = "breathing_rate")
     private Float breathingRate; // 호흡 수치
+
+    @Column(name = "first")
+    private Float first; // 1회차
+
+    @Column(name = "second")
+    private Float second; // 2회차
+
+    @Column(name = "third")
+    private Float third; // 3회차
 }
 
