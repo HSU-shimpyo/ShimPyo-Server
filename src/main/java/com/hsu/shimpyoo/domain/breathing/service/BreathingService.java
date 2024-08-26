@@ -7,7 +7,6 @@ import com.hsu.shimpyoo.domain.breathing.repository.BreathingFileRepository;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
-import com.hsu.shimpyoo.domain.user.service.UserService;
 import com.hsu.shimpyoo.global.aws.s3.service.S3Service;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
@@ -30,7 +29,7 @@ public class BreathingService {
     private final BreathingFileRepository breathingFileRepository;
 
     // 호흡 파일을 업로드한다
-    public ResponseEntity<CustomAPIResponse<?>> updateBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException {
+    public ResponseEntity<CustomAPIResponse<?>> uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException {
         // 현재 사용자의 로그인용 아이디를 가지고 옴
         String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
 
