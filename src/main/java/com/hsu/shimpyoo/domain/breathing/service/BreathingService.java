@@ -6,8 +6,6 @@ import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
