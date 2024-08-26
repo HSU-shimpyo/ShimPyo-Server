@@ -19,7 +19,7 @@ public class S3Service {
     private String bucket; //버킷 이름
 
     // 파일 업로드
-    public String uploadFile(MultipartFile multipartFile, String userId, String date, int number) throws IOException {
+    public String uploadFile(MultipartFile multipartFile, Long userId, String date, int number) throws IOException {
         String originalFilename = multipartFile.getOriginalFilename();
 
         // 확장자 추출
