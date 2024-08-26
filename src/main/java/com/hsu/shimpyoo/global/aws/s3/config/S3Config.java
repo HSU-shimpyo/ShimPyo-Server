@@ -20,8 +20,10 @@ public class S3Config {
 
     @Bean
     public AmazonS3 s3Builder() {
+        // accessKey, secretKey를 이용해 AWS S3 클라이언트에 필요한 자격 증명을 생성.
         AWSCredentials basicAWSCredentials = new BasicAWSCredentials(accessKey, secretKey);
 
+        // AmazonS3 클라이언트 생성
         return AmazonS3ClientBuilder.standard()
                 .withCredentials(new AWSStaticCredentialsProvider(basicAWSCredentials))
                 .withRegion(region).build();
