@@ -18,20 +18,29 @@ public class S3Service {
     @Value("${cloud.aws.s3.bucketName}")
     private String bucket; //버킷 이름
 
+    // 파일 업로드
     public String uploadFile(MultipartFile multipartFile, String userId, String date, int number) throws IOException {
         String originalFilename = multipartFile.getOriginalFilename();
 
+        // 확장자 추출
         String extension = originalFilename.substring(originalFilename.lastIndexOf('.'));
+
+        // 파일 이름 변경
         String newFilename = userId + "_" + date + "_" + number + extension;
 
+        //파일의 메타데이터 생성
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setContentLength(multipartFile.getSize());
         metadata.setContentType(multipartFile.getContentType());
 
+        // s3에 파일 업로드
         amazonS3.putObject(bucket, newFilename, multipartFile.getInputStream(), metadata);
+
+        // 업로드한 파이르이 url 반환
         return amazonS3.getUrl(bucket, newFilename).toString();
     }
 
+    // 파일 삭제
     public void deleteFile(String filename)  {
         amazonS3.deleteObject(bucket, filename);
     }
