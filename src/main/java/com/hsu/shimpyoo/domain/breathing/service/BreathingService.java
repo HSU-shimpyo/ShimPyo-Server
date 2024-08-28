@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -98,7 +99,6 @@ public class BreathingService {
                 rateDifferencePercent = Math.abs(rateDifferencePercent); // 절대값으로 변환
             }
 
-            // 상태 결정 로직 수정
             float rateChange = ((float) maxBreathingRate / previousBreathingRate) * 100;
             if (rateChange >= 80) {
                 status = "안정";
@@ -142,5 +142,22 @@ public class BreathingService {
         }
 
         return weeklyBreathingRates;
+    }
+
+    // 나의 최대호기량 조회 (마이페이지)
+    public ResponseEntity<CustomAPIResponse<?>> getMostRecentBreathingRate(String loginId) {
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        Breathing recentBreathing = breathingRepository.findTopByUserIdOrderByCreatedAtDesc(user);
+
+        if (recentBreathing != null) {
+            Map<String, Object> responseData = new HashMap<>();
+            responseData.put("breathingRate", recentBreathing.getBreathingRate());
+            return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, responseData, "나의 기준 최대호기량 조회에 성공했습니다."));
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(CustomAPIResponse.createFailWithout(404, "호흡 데이터를 찾을 수 없습니다."));
+        }
     }
 }
