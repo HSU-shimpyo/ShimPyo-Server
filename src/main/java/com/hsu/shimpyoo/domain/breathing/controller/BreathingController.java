@@ -65,4 +65,11 @@ public class BreathingController {
 
         return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, weeklyBreathingRates, "지난 7일간의 최대호기량 조회에 성공했습니다."));
     }
+
+    // 나의 최대호기량 조회 (마이페이지)
+    @GetMapping("/myBreathingRate")
+    public ResponseEntity<CustomAPIResponse<?>> getMyBreathingRate() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        return breathingService.getMostRecentBreathingRate(loginId);
+    }
 }
