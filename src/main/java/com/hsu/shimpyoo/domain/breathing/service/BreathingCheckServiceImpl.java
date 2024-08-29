@@ -3,14 +3,10 @@ package com.hsu.shimpyoo.domain.breathing.service;
 import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingFileRepository;
-import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.aws.s3.service.S3Service;
-import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -27,15 +23,14 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
 
     // 호흡 파일 업로드
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException{
+    public BreathingFile uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException{
         // 현재 사용자의 로그인용 아이디를 가지고 옴
         String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
 
         // 사용자를 찾을 수 없다면 오류 반환
         Optional<User> isExistUser=userRepository.findByLoginId(loginId);
         if(isExistUser.isEmpty()){
-            CustomAPIResponse<Object> res=CustomAPIResponse.createFailWithout(404, "사용자를 찾을 수 없습니다.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
         // 사용자 기본키 추출
@@ -59,7 +54,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
 
         breathingFileRepository.save(breathingFile);
 
-        CustomAPIResponse<BreathingFile> res=CustomAPIResponse.createSuccess(201, null, "호흡 파일이 업로드되었습니다.");
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
+        // 저장된 BreathingFile 객체 반환
+        return breathingFile;
     }
 }
