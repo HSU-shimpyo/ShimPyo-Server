@@ -8,7 +8,6 @@ import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -22,7 +21,6 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class BreathingCheckController {
     private final BreathingCheckServiceImpl breathingCheckServiceImpl;
-    private final UserRepository userRepository;
 
     // 녹음 파일 업로드
     @PostMapping("/uploadFile")
@@ -52,8 +50,6 @@ public class BreathingCheckController {
 
         // flask 서버로 파일 URL을 전송하고, PEF 값을 받아옴
         ResponseEntity<CustomAPIResponse<?>> response = breathingCheckServiceImpl.analyzeBreathing(breathingFlaskRequestDto, breathingFileId);
-
-
 
         // 최종적으로 PEF 값을 반환
         return response;

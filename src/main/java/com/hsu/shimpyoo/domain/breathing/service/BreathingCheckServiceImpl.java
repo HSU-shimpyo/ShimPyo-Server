@@ -12,6 +12,7 @@ import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.aws.s3.service.S3Service;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -79,7 +80,8 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         // 사용자를 찾을 수 없다면 오류 반환
         Optional<User> isExistUser=userRepository.findByLoginId(loginId);
         if(isExistUser.isEmpty()){
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+            CustomAPIResponse<Object> res=CustomAPIResponse.createFailWithout(404, "사용자를 찾을 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
         }
 
         // 플라스크 서버 엔드포인트

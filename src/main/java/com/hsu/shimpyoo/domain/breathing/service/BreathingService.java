@@ -8,6 +8,7 @@ import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -103,6 +104,7 @@ public class BreathingService {
         User user = userRepository.findByLoginId(loginId)
                 .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
 
+
         Breathing recentBreathing = breathingRepository.findTopByUserIdOrderByCreatedAtDesc(user);
 
         if (recentBreathing != null) {
@@ -110,8 +112,8 @@ public class BreathingService {
             responseData.put("breathingRate", recentBreathing.getBreathingRate());
             return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, responseData, "나의 기준 최대호기량 조회에 성공했습니다."));
         } else {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(CustomAPIResponse.createFailWithout(404, "호흡 데이터를 찾을 수 없습니다."));
+            double breathingRate = user.getPef();
+            return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, breathingRate, "나의 기준 최대호기량 조회에 성공했습니다."));
         }
     }
 }
