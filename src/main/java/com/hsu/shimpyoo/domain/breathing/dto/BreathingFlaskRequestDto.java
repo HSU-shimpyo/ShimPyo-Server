@@ -1,13 +1,13 @@
 package com.hsu.shimpyoo.domain.breathing.dto;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
+@Builder
+@AllArgsConstructor
 @NoArgsConstructor
-public class BreathingFlaskDto {
+public class BreathingFlaskRequestDto {
     // 첫번째 측정 파일 url
     private String firstFile;
 

@@ -1,6 +1,7 @@
 package com.hsu.shimpyoo.domain.breathing.service;
 
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingFlaskDto;
+import com.hsu.shimpyoo.domain.breathing.dto.BreathingFlaskRequestDto;
+import com.hsu.shimpyoo.domain.breathing.dto.BreathingPefDto;
 import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
@@ -70,18 +71,45 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> analyzeBreathing(BreathingFlaskDto breathingFlaskDto) throws IOException {
+    public ResponseEntity<CustomAPIResponse<?>> analyzeBreathing
+            (BreathingFlaskRequestDto breathingFlaskRequestDto, Long breathingFileId) throws IOException {
+        // 현재 사용자의 로그인용 아이디를 가지고 옴
+        String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 사용자를 찾을 수 없다면 오류 반환
+        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
+        if(isExistUser.isEmpty()){
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+        }
+
         // 플라스크 서버 엔드포인트
         String flaskUrl = "http://localhost:5001/analyze";
 
         // Flask 서버로 POST 요청을 보내서 PEF 값을 받아옴
-        ResponseEntity<Map> response = restTemplate.postForEntity(flaskUrl, breathingFlaskDto, Map.class);
+        ResponseEntity<Map> response = restTemplate.postForEntity(flaskUrl, breathingFlaskRequestDto, Map.class);
 
         if (response.getStatusCode().is2xxSuccessful()) {
             // "pef_1": 300.0 같은 형식으로 저장
             Map<String, Double> pefValues = response.getBody();
 
-            return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, pefValues, "PEF 값을 성공적으로 계산했습니다."));
+            BreathingPefDto breathingPefDto=BreathingPefDto.builder()
+                    .first(pefValues.get("pef_1"))
+                    .second(pefValues.get("pef_2"))
+                    .third(pefValues.get("pef_3"))
+                    .build();
+
+            Breathing newBreathing=Breathing.builder()
+                    .breathingFileId(breathingFileRepository.findByBreathingFileId(breathingFileId))
+                    .breathingRate(Double.valueOf(userRepository.findByLoginId(loginId).get().getPef()))
+                    .userId(isExistUser.get())
+                    .first(pefValues.get("pef_1"))
+                    .second(pefValues.get("pef_2"))
+                    .third(pefValues.get("pef_3"))
+                    .build();
+
+            breathingRepository.save(newBreathing);
+
+            return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, breathingPefDto, "PEF 값을 성공적으로 계산했습니다."));
         } else {
             return ResponseEntity.status(response.getStatusCode())
                     .body(CustomAPIResponse.createFailWithout(500, "Flask 서버와의 통신 중 오류가 발생했습니다."));
