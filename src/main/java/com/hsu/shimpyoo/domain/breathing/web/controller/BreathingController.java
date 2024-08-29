@@ -72,4 +72,10 @@ public class BreathingController {
         String loginId = authenticationUserUtils.getCurrentUserId();
         return breathingService.getMostRecentBreathingRate(loginId);
     }
+
+//    @GetMapping("/weekly/average")
+//    public ResponseEntity<CustomAPIResponse<?>> getWeeklyBreathingAverage() {
+//        String loginId = authenticationUserUtils.getCurrentUserId();
+//
+//    }
 }
