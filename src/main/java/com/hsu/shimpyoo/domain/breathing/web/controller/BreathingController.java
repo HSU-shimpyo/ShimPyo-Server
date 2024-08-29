@@ -41,7 +41,7 @@ public class BreathingController {
     }
 
     // 오늘의 쉼 결과
-    @PostMapping("/todayResult")
+    @PostMapping("/today/result")
     public CustomAPIResponse<Map<String, Object>> getTodayBreathingResult(
             @RequestBody BreathingRequestDto dto) {
         // 현재 로그인된 사용자 정보 가져오기
@@ -53,7 +53,7 @@ public class BreathingController {
     }
 
     // 오늘을 기준으로 지난 7일간의 쉼 결과 조회
-    @GetMapping("/todayWeekly")
+    @GetMapping("/today/weekly")
     public ResponseEntity<CustomAPIResponse<?>> getTodayBreathingWeekly() {
         // 현재 로그인된 사용자 정보 가져오기
         String loginId = authenticationUserUtils.getCurrentUserId();
