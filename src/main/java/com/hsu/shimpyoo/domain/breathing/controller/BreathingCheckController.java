@@ -23,7 +23,7 @@ public class BreathingCheckController {
 
     // 녹음 파일 업로드
     @PostMapping("/uploadFile")
-    public ResponseEntity<CustomAPIResponse<?>> uploadFile(
+    public ResponseEntity<CustomAPIResponse<?>> getPef(
             @RequestPart("date") String date,
             @RequestPart("firstFile") MultipartFile firstFile,
             @RequestPart("secondFile") MultipartFile secondFile,
@@ -40,7 +40,10 @@ public class BreathingCheckController {
         breathingFlaskDto.setSecondFile(breathingFile.getSecondUrl());
         breathingFlaskDto.setThirdFile(breathingFile.getThirdUrl());
 
-        // 임의로 넣은 ResponseEntity 코드임
-        return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, null, "성공했습니다."));
+        // flask 서버로 파일 URL을 전송하고, PEF 값을 받아옴
+        ResponseEntity<CustomAPIResponse<?>> response = breathingCheckServiceImpl.analyzeBreathing(breathingFlaskDto);
+
+        // 최종적으로 PEF 값을 반환
+        return response;
     }
 }
