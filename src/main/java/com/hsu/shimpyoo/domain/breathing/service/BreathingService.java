@@ -18,6 +18,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -172,5 +174,45 @@ public class BreathingService {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body(CustomAPIResponse.createFailWithout(404, "호흡 데이터를 찾을 수 없습니다."));
         }
+    }
+
+    public CustomAPIResponse<Map<String, Object>> getWeeklyBreathingAverage(User user) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDate startOfWeek = now.with(DayOfWeek.MONDAY).toLocalDate();
+        LocalDate endOfWeek = now.with(DayOfWeek.SUNDAY).toLocalDate();
+
+        List<Map<String, Object>> weeklyData = new ArrayList<>();
+        float totalBreathingRate = 0;
+        int count = 0;
+
+        for (LocalDate date = startOfWeek; !date.isAfter(endOfWeek); date = date.plusDays(1)) {
+            WeekDay weekDay = WeekDay.valueOf(date.getDayOfWeek().name());
+
+            // 해당 날짜의 데이터를 조회
+            LocalDateTime startOfDay = date.atStartOfDay();
+            LocalDateTime endOfDay = date.atTime(23, 59, 59);
+            DailyPef dailyPef = dailyPefRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(user, startOfDay, endOfDay)
+                    .orElse(null);
+
+            Map<String, Object> dayData = new LinkedHashMap<>();
+            dayData.put("weekDay", weekDay.getKoreanName());
+            dayData.put("date", date.toString());
+            if (dailyPef != null) {
+                dayData.put("breathingRate", dailyPef.getPef());
+                totalBreathingRate += dailyPef.getPef();
+                count++;
+            } else {
+                dayData.put("breathingRate", null);
+            }
+            weeklyData.add(dayData);
+        }
+
+        float averageBreathingRate = count > 0 ? totalBreathingRate / count : 0;
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("weeklyData", weeklyData);
+        data.put("averagePef", Math.round(averageBreathingRate));
+
+        return CustomAPIResponse.createSuccess(200, data, "주간 최대호기량 및 평균 조회에 성공했습니다.");
     }
 }
