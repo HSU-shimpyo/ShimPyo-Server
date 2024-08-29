@@ -1,7 +1,7 @@
-package com.hsu.shimpyoo.domain.breathing.controller;
+package com.hsu.shimpyoo.domain.breathing.web.controller;
 
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingRequestDto;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.domain.breathing.service.BreathingService;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
@@ -41,7 +41,7 @@ public class BreathingController {
     }
 
     // 오늘의 쉼 결과
-    @PostMapping("/todayResult")
+    @PostMapping("/today/result")
     public CustomAPIResponse<Map<String, Object>> getTodayBreathingResult(
             @RequestBody BreathingRequestDto dto) {
         // 현재 로그인된 사용자 정보 가져오기
@@ -53,7 +53,7 @@ public class BreathingController {
     }
 
     // 오늘을 기준으로 지난 7일간의 쉼 결과 조회
-    @GetMapping("/todayWeekly")
+    @GetMapping("/today/weekly")
     public ResponseEntity<CustomAPIResponse<?>> getTodayBreathingWeekly() {
         // 현재 로그인된 사용자 정보 가져오기
         String loginId = authenticationUserUtils.getCurrentUserId();
@@ -71,5 +71,15 @@ public class BreathingController {
     public ResponseEntity<CustomAPIResponse<?>> getMyBreathingRate() {
         String loginId = authenticationUserUtils.getCurrentUserId();
         return breathingService.getMostRecentBreathingRate(loginId);
+    }
+
+    @GetMapping("/weekly/average")
+    public ResponseEntity<CustomAPIResponse<?>> getWeeklyBreathingAverage() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        CustomAPIResponse<Map<String, Object>> response = breathingService.getWeeklyBreathingAverage(user);
+        return ResponseEntity.ok(response);
     }
 }
