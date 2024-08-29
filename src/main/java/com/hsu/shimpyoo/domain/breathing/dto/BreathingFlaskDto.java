@@ -11,11 +11,11 @@ import lombok.Setter;
 @RequiredArgsConstructor
 public class BreathingFlaskDto {
     // 첫번째 측정 파일 url
-    private String firstUrl;
+    private String firstFile;
 
     // 두번째 측정 파일 url
-    private String secondUrl;
+    private String secondFile;
 
     // 세번째 측정 파일 url
-    private String thirdUrl;
+    private String thirdFile;
 }

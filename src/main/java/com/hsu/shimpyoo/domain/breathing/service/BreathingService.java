@@ -25,46 +25,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BreathingService {
     private final BreathingRepository breathingRepository;
-    private final S3Service s3Service;
     private final UserRepository userRepository;
-    private final BreathingFileRepository breathingFileRepository;
-
-    // 호흡 파일을 업로드한다
-    public ResponseEntity<CustomAPIResponse<?>> uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException {
-        // 현재 사용자의 로그인용 아이디를 가지고 옴
-        String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
-
-        // 사용자를 찾을 수 없다면 오류 반환
-        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
-        if(isExistUser.isEmpty()){
-            CustomAPIResponse<Object> res=CustomAPIResponse.createFailWithout(404, "사용자를 찾을 수 없습니다.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
-        }
-
-        // 사용자 기본키 추출
-        Long userId = isExistUser.get().getId();
-
-        String date=breathingUploadRequestDto.getDate();
-        MultipartFile firstFile= breathingUploadRequestDto.getFirstFile();
-        MultipartFile secondFile= breathingUploadRequestDto.getSecondFile();
-        MultipartFile thirdFile= breathingUploadRequestDto.getThirdFile();
-
-        String firstUrl= s3Service.uploadFile(firstFile, userId, date, 1);
-        String secondUrl= s3Service.uploadFile(secondFile, userId, date, 2);
-        String thirdUrl= s3Service.uploadFile(thirdFile, userId, date, 3);
-
-        BreathingFile breathingFile=BreathingFile.builder()
-                .userId(isExistUser.get())
-                .firstUrl(firstUrl)
-                .secondUrl(secondUrl)
-                .thirdUrl(thirdUrl)
-                .build();
-
-        breathingFileRepository.save(breathingFile);
-
-        CustomAPIResponse<BreathingFile> res=CustomAPIResponse.createSuccess(201, null, "호흡 파일이 업로드되었습니다.");
-        return ResponseEntity.status(HttpStatus.CREATED).body(res);
-    }
 
     public CustomAPIResponse<Map<String, Object>> calculateBreathingResult(BreathingRequestDto dto, User user) {
         // 가장 최근의 Breathing 데이터를 userId로 조회
