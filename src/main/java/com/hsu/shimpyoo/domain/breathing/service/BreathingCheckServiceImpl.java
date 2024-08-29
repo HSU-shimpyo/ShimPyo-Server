@@ -2,8 +2,10 @@ package com.hsu.shimpyoo.domain.breathing.service;
 
 import com.hsu.shimpyoo.domain.breathing.dto.BreathingFlaskDto;
 import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingFileRepository;
+import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.aws.s3.service.S3Service;
@@ -28,6 +30,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
 
     // flask 통신을 위한 RestTemplate
     private final RestTemplate restTemplate;
+    private final BreathingRepository breathingRepository;
 
     // 호흡 파일 업로드
     @Override
@@ -77,6 +80,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         if (response.getStatusCode().is2xxSuccessful()) {
             // "pef_1": 300.0 같은 형식으로 저장
             Map<String, Double> pefValues = response.getBody();
+
             return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, pefValues, "PEF 값을 성공적으로 계산했습니다."));
         } else {
             return ResponseEntity.status(response.getStatusCode())
