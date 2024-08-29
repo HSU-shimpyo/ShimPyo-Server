@@ -73,9 +73,13 @@ public class BreathingController {
         return breathingService.getMostRecentBreathingRate(loginId);
     }
 
-//    @GetMapping("/weekly/average")
-//    public ResponseEntity<CustomAPIResponse<?>> getWeeklyBreathingAverage() {
-//        String loginId = authenticationUserUtils.getCurrentUserId();
-//
-//    }
+    @GetMapping("/weekly/average")
+    public ResponseEntity<CustomAPIResponse<?>> getWeeklyBreathingAverage() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        CustomAPIResponse<Map<String, Object>> response = breathingService.getWeeklyBreathingAverage(user);
+        return ResponseEntity.ok(response);
+    }
 }
