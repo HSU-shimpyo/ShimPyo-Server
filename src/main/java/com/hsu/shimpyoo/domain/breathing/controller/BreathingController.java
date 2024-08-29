@@ -1,6 +1,6 @@
 package com.hsu.shimpyoo.domain.breathing.controller;
 
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingRequestDto;
+import com.hsu.shimpyoo.domain.breathing.dto.BreathingPefDto;
 import com.hsu.shimpyoo.domain.breathing.service.BreathingService;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
@@ -25,7 +25,7 @@ public class BreathingController {
     // 오늘의 쉼 결과
     @PostMapping("/todayResult")
     public CustomAPIResponse<Map<String, Object>> getTodayBreathingResult(
-            @RequestBody BreathingRequestDto dto) {
+            @RequestBody BreathingPefDto dto) {
         // 현재 로그인된 사용자 정보 가져오기
         String loginId = authenticationUserUtils.getCurrentUserId();
         User user = userRepository.findByLoginId(loginId)

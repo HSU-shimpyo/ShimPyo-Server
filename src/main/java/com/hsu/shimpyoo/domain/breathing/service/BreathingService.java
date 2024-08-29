@@ -1,23 +1,16 @@
 package com.hsu.shimpyoo.domain.breathing.service;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingRequestDto;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.breathing.dto.BreathingPefDto;
 import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
-import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
-import com.hsu.shimpyoo.domain.breathing.repository.BreathingFileRepository;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
-import com.hsu.shimpyoo.global.aws.s3.service.S3Service;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -27,12 +20,12 @@ public class BreathingService {
     private final BreathingRepository breathingRepository;
     private final UserRepository userRepository;
 
-    public CustomAPIResponse<Map<String, Object>> calculateBreathingResult(BreathingRequestDto dto, User user) {
+    public CustomAPIResponse<Map<String, Object>> calculateBreathingResult(BreathingPefDto dto, User user) {
         // 가장 최근의 Breathing 데이터를 userId로 조회
         Breathing recentBreathing = breathingRepository.findTopByUserIdOrderByCreatedAtDesc(user);
 
         // 최대호기량 설정
-        Float maxBreathingRate = Math.max(dto.getFirst(), Math.max(dto.getSecond(), dto.getThird()));
+        Double maxBreathingRate = Math.max(dto.getFirst(), Math.max(dto.getSecond(), dto.getThird()));
 
         // 새로운 Breathing 데이터 저장
         Breathing breathing = Breathing.builder()
@@ -50,8 +43,8 @@ public class BreathingService {
         int rateDifferencePercent = 0;
 
         if (recentBreathing != null) {
-            Float previousBreathingRate = recentBreathing.getBreathingRate();
-            rateDifferencePercent = Math.round(((maxBreathingRate - previousBreathingRate) / previousBreathingRate) * 100);
+            Double previousBreathingRate = recentBreathing.getBreathingRate();
+            rateDifferencePercent = (int) Math.round(((maxBreathingRate - previousBreathingRate) / previousBreathingRate) * 100);
 
             if (rateDifferencePercent >= 0) {
                 rateChangeDirection = "증가";
@@ -60,7 +53,7 @@ public class BreathingService {
                 rateDifferencePercent = Math.abs(rateDifferencePercent); // 절대값으로 변환
             }
 
-            float rateChange = ((float) maxBreathingRate / previousBreathingRate) * 100;
+            double rateChange = (maxBreathingRate / previousBreathingRate) * 100;
             if (rateChange >= 80) {
                 status = "안정";
             } else if (rateChange >= 60) {
