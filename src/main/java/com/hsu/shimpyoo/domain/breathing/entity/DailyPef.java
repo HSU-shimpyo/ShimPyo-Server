@@ -24,9 +24,11 @@ public class DailyPef extends BaseEntity {
     @Column(name = "pef")
     private Float pef; // 최대호기량
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "state")
-    private Enum state; // 상태
+    private State state; // 상태
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "week_day")
-    private Enum weekDay; // 요알
+    private WeekDay weekDay; // 요일
 }
