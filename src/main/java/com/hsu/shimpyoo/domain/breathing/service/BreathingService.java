@@ -1,8 +1,8 @@
 package com.hsu.shimpyoo.domain.breathing.service;
+import com.hsu.shimpyoo.domain.breathing.entity.*;
+import com.hsu.shimpyoo.domain.breathing.repository.DailyPefRepository;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingRequestDto;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
-import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
-import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingFileRepository;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.user.entity.User;
@@ -25,6 +25,7 @@ import java.util.*;
 @RequiredArgsConstructor
 public class BreathingService {
     private final BreathingRepository breathingRepository;
+    private final DailyPefRepository dailyPefRepository;
     private final S3Service s3Service;
     private final UserRepository userRepository;
     private final BreathingFileRepository breathingFileRepository;
@@ -83,8 +84,8 @@ public class BreathingService {
                 .build();
         breathingRepository.save(breathing);
 
-        // 이전 breathingRate 값과 비교하여 상태 결정
-        String status;
+        // 상태 결정
+        State state;
         String rateChangeDirection = "";  // 증가 또는 감소 방향
         int rateDifferencePercent = 0;
 
@@ -101,20 +102,32 @@ public class BreathingService {
 
             float rateChange = ((float) maxBreathingRate / previousBreathingRate) * 100;
             if (rateChange >= 80) {
-                status = "안정";
+                state = State.GOOD;
             } else if (rateChange >= 60) {
-                status = "주의";
+                state = State.WARNING;
             } else {
-                status = "위험";
+                state = State.DANGER;
             }
         } else {
             // 이전 데이터가 없을 때
             return CustomAPIResponse.createFailWithout(404, "이전 데이터를 찾을 수 없습니다.");
         }
 
+        // 현재 요일에 해당하는 WeekDay Enum을 가져옵니다.
+        WeekDay currentWeekDay = WeekDay.valueOf(LocalDateTime.now().getDayOfWeek().name());
+
+        // DailyPef 데이터베이스에 상태와 최대호기량을 저장
+        DailyPef dailyPef = DailyPef.builder()
+                .userId(user)
+                .pef(maxBreathingRate)
+                .state(state) // Enum 타입으로 상태 저장
+                .weekDay(currentWeekDay) // Enum 타입으로 요일 저장
+                .build();
+        dailyPefRepository.save(dailyPef);
+
         // 반환 데이터
         Map<String, Object> responseData = new LinkedHashMap<>();
-        responseData.put("status", status);
+        responseData.put("status", state.getDescription()); // 한국어 설명으로 반환
         responseData.put("breathingRate", maxBreathingRate);
         responseData.put("rateDifference", rateDifferencePercent + "% " + rateChangeDirection);
         responseData.put("first", breathing.getFirst());
