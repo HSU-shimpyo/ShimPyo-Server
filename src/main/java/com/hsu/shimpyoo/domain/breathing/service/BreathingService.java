@@ -1,6 +1,6 @@
 package com.hsu.shimpyoo.domain.breathing.service;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingRequestDto;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingFileRepository;

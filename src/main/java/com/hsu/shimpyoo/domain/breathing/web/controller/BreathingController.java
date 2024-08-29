@@ -1,7 +1,7 @@
-package com.hsu.shimpyoo.domain.breathing.controller;
+package com.hsu.shimpyoo.domain.breathing.web.controller;
 
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingRequestDto;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.domain.breathing.service.BreathingService;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
