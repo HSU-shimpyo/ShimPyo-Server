@@ -14,4 +14,7 @@ public interface BreathingRepository extends JpaRepository<Breathing, Long> {
 
     // 지난 7일간 내역 조회
     Optional<Breathing> findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(User user, LocalDateTime startOfDay, LocalDateTime endOfDay);
+
+    // 오늘 생성된 모든 Breathing 엔티티를 찾기 위한 메서드
+    Optional<Breathing> findByUserIdAndCreatedAtBetween(User user, LocalDateTime startOfDay, LocalDateTime endOfDay);
 }

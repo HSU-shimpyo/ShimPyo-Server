@@ -1,7 +1,5 @@
 package com.hsu.shimpyoo.domain.user.service;
 
-import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
-import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.user.dto.SignInReqDto;
 import com.hsu.shimpyoo.domain.user.dto.SignUpDto;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;

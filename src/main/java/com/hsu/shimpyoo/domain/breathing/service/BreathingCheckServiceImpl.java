@@ -16,11 +16,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.ErrorResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.Map;
 import java.util.Optional;
 
@@ -36,6 +41,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
     private final BreathingRepository breathingRepository;
 
     // 호흡 파일 업로드
+    @Transactional
     @Override
     public BreathingFile uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException{
         // 현재 사용자의 로그인용 아이디를 가지고 옴
@@ -44,11 +50,20 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         // 사용자를 찾을 수 없다면 오류 반환
         Optional<User> isExistUser=userRepository.findByLoginId(loginId);
         if(isExistUser.isEmpty()){
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
 
         // 사용자 기본키 추출
         Long userId = isExistUser.get().getId();
+
+        // 이미 측정했다면 오류 반환
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay(); // 오늘의 시작 시간 00:00:00
+        LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX); // 오늘의 끝 시간 23:59:59
+        Optional<Breathing> isExistBreathing=breathingRepository.findByUserIdAndCreatedAtBetween(
+                isExistUser.get(), startOfToday, endOfToday);
+        if(isExistBreathing.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "오늘의 측정이 완료된 상태입니다.");
+        }
 
         String date=breathingUploadRequestDto.getDate();
         MultipartFile firstFile= breathingUploadRequestDto.getFirstFile();
@@ -72,6 +87,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         return breathingFile;
     }
 
+    @Transactional
     @Override
     public BreathingPefDto analyzeBreathing
             (BreathingFlaskRequestDto breathingFlaskRequestDto, Long breathingFileId) throws IOException {
@@ -81,7 +97,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         // 사용자를 찾을 수 없다면 오류 반환
         Optional<User> isExistUser=userRepository.findByLoginId(loginId);
         if(isExistUser.isEmpty()){
-            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
 
         // 플라스크 서버 엔드포인트
@@ -111,7 +127,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
             breathingRepository.save(newBreathing);
 
         if(!response.getStatusCode().is2xxSuccessful()){
-            throw new RuntimeException("통신 중 오류가 발생했습니다.");
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "통신 중 서버 오류가 발생했습니다.");
         }
 
         return breathingPefDto;
