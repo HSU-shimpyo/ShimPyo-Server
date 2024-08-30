@@ -3,6 +3,7 @@ package com.hsu.shimpyoo.domain.breathing.web.controller;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingFlaskRequestDto;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
 import com.hsu.shimpyoo.domain.breathing.service.BreathingCheckServiceImpl;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingPefDto;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +23,8 @@ public class BreathingCheckController {
     private final BreathingCheckServiceImpl breathingCheckServiceImpl;
 
     // 녹음 파일 업로드
-    @PostMapping("/uploadFile")
-    public ResponseEntity<CustomAPIResponse<?>> getPef(
+    @PostMapping("/analyze")
+    public ResponseEntity<CustomAPIResponse<?>> analyzePef(
             @RequestPart("date") String date,
             @RequestPart("firstFile") MultipartFile firstFile,
             @RequestPart("secondFile") MultipartFile secondFile,
@@ -48,9 +49,9 @@ public class BreathingCheckController {
         Long breathingFileId= breathingFile.getBreathingFileId();
 
         // flask 서버로 파일 URL을 전송하고, PEF 값을 받아옴
-        ResponseEntity<CustomAPIResponse<?>> response = breathingCheckServiceImpl.analyzeBreathing(breathingFlaskRequestDto, breathingFileId);
+        BreathingPefDto breathingPefDto = breathingCheckServiceImpl.analyzeBreathing(breathingFlaskRequestDto, breathingFileId);
 
         // 최종적으로 PEF 값을 반환
-        return response;
+        return null;
     }
 }
