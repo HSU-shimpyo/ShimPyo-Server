@@ -25,50 +25,52 @@ public class BreathingService {
     private final UserRepository userRepository;
     private final DailyPefRepository dailyPefRepository;
 
-    public CustomAPIResponse<Map<String, Object>> calculateBreathingResult(BreathingPefDto dto, User user) {
-        // 가장 최근의 Breathing 데이터를 userId로 조회
-        Breathing recentBreathing = breathingRepository.findTopByUserIdOrderByCreatedAtDesc(user);
+    public CustomAPIResponse<Map<String, Object>> calculateBreathingResult(Breathing todayBreathing, User user) {
+        // 하루 전날의 시작 시간과 끝 시간 계산
+        LocalDateTime startOfYesterday = LocalDate.now().minusDays(1).atStartOfDay();
+        LocalDateTime endOfYesterday = LocalDate.now().minusDays(1).atTime(LocalTime.MAX);
+
+        // 하루 전의 Breathing 데이터를 userId로 조회
+        Optional<Breathing> isExistBreathing = breathingRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+                user, startOfYesterday, endOfYesterday);
+
+        Breathing previousBreathing;
+        Double previousBreathingRate;
+
+        // 하루 전 호흡 기록이 존재한다면
+        if (isExistBreathing.isPresent()) {
+            previousBreathing = isExistBreathing.get();
+            previousBreathingRate = previousBreathing.getBreathingRate();
+        } else {
+            // 이전 호흡 데이터가 없는 경우 유저의 기본 PEF를 사용
+            previousBreathingRate=user.getPef();
+        }
 
         // 최대호기량 설정
-        Double maxBreathingRate = Math.max(dto.getFirst(), Math.max(dto.getSecond(), dto.getThird()));
-
-        // 새로운 Breathing 데이터 저장
-        Breathing breathing = Breathing.builder()
-                .userId(user)
-                .breathingRate(maxBreathingRate)
-                .first(dto.getFirst())
-                .second(dto.getSecond())
-                .third(dto.getThird())
-                .build();
-        breathingRepository.save(breathing);
+        Double maxBreathingRate = Math.max(todayBreathing.getFirst(), Math.max(todayBreathing.getSecond(), todayBreathing.getThird()));
 
         // 상태 결정
         State state;
         String rateChangeDirection = "";  // 증가 또는 감소 방향
         int rateDifferencePercent = 0;
 
-        if (recentBreathing != null) {
-            Double previousBreathingRate = recentBreathing.getBreathingRate();
-            rateDifferencePercent = (int) Math.round(((maxBreathingRate - previousBreathingRate) / previousBreathingRate) * 100);
 
-            if (rateDifferencePercent >= 0) {
-                rateChangeDirection = "증가";
-            } else {
-                rateChangeDirection = "감소";
-                rateDifferencePercent = Math.abs(rateDifferencePercent); // 절대값으로 변환
-            }
+        rateDifferencePercent = (int) Math.round(((maxBreathingRate - previousBreathingRate) / previousBreathingRate) * 100);
 
-            double rateChange = (maxBreathingRate / previousBreathingRate) * 100;
-            if (rateChange >= 80) {
-                state = State.GOOD;
-            } else if (rateChange >= 60) {
-                state = State.WARNING;
-            } else {
-                state = State.DANGER;
-            }
+        if (rateDifferencePercent >= 0) {
+            rateChangeDirection = "증가";
         } else {
-            // 이전 데이터가 없을 때
-            return CustomAPIResponse.createFailWithout(404, "이전 데이터를 찾을 수 없습니다.");
+            rateChangeDirection = "감소";
+            rateDifferencePercent = Math.abs(rateDifferencePercent); // 절대값으로 변환
+        }
+
+        double rateChange = (maxBreathingRate / previousBreathingRate) * 100;
+        if (rateChange >= 80) {
+            state = State.GOOD;
+        } else if (rateChange >= 60) {
+            state = State.WARNING;
+        } else {
+            state = State.DANGER;
         }
 
         // 현재 요일에 해당하는 WeekDay Enum을 가져옵니다.
@@ -88,9 +90,9 @@ public class BreathingService {
         responseData.put("status", state.getDescription()); // 한국어 설명으로 반환
         responseData.put("breathingRate", maxBreathingRate);
         responseData.put("rateDifference", rateDifferencePercent + "% " + rateChangeDirection);
-        responseData.put("first", breathing.getFirst());
-        responseData.put("second", breathing.getSecond());
-        responseData.put("third", breathing.getThird());
+        responseData.put("first", todayBreathing.getFirst());
+        responseData.put("second", todayBreathing.getSecond());
+        responseData.put("third", todayBreathing.getThird());
 
         return CustomAPIResponse.createSuccess(200, responseData, "오늘의 쉼 결과 조회에 성공했습니다.");
     }
