@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.ErrorResponseException;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -72,7 +73,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
     }
 
     @Override
-    public ResponseEntity<CustomAPIResponse<?>> analyzeBreathing
+    public BreathingPefDto analyzeBreathing
             (BreathingFlaskRequestDto breathingFlaskRequestDto, Long breathingFileId) throws IOException {
         // 현재 사용자의 로그인용 아이디를 가지고 옴
         String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
@@ -80,8 +81,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         // 사용자를 찾을 수 없다면 오류 반환
         Optional<User> isExistUser=userRepository.findByLoginId(loginId);
         if(isExistUser.isEmpty()){
-            CustomAPIResponse<Object> res=CustomAPIResponse.createFailWithout(404, "사용자를 찾을 수 없습니다.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+            throw new IllegalArgumentException("존재하지 않는 사용자입니다.");
         }
 
         // 플라스크 서버 엔드포인트
@@ -90,7 +90,6 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         // Flask 서버로 POST 요청을 보내서 PEF 값을 받아옴
         ResponseEntity<Map> response = restTemplate.postForEntity(flaskUrl, breathingFlaskRequestDto, Map.class);
 
-        if (response.getStatusCode().is2xxSuccessful()) {
             // "pef_1": 300.0 같은 형식으로 저장
             Map<String, Double> pefValues = response.getBody();
 
@@ -111,10 +110,10 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
 
             breathingRepository.save(newBreathing);
 
-            return ResponseEntity.ok(CustomAPIResponse.createSuccess(200, breathingPefDto, "PEF 값을 성공적으로 계산했습니다."));
-        } else {
-            return ResponseEntity.status(response.getStatusCode())
-                    .body(CustomAPIResponse.createFailWithout(500, "Flask 서버와의 통신 중 오류가 발생했습니다."));
+        if(!response.getStatusCode().is2xxSuccessful()){
+            throw new RuntimeException("통신 중 오류가 발생했습니다.");
         }
+
+        return breathingPefDto;
     }
 }
