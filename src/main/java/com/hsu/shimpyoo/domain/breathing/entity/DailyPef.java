@@ -22,7 +22,7 @@ public class DailyPef extends BaseEntity {
     private User userId; // 사용자 기본 키
 
     @Column(name = "pef")
-    private Float pef; // 최대호기량
+    private Double pef; // 최대호기량
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state")
