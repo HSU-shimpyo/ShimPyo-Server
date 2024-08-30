@@ -34,7 +34,7 @@ public class User extends BaseEntity {
     private Date birth; // 생년월일
 
     @Column(name = "pef")
-    private Float pef; // 최대호기량
+    private Double pef; // 최대호기량
 
     public static User toEntity(SignUpDto dto, String encryptedPassword) {
 
@@ -43,7 +43,7 @@ public class User extends BaseEntity {
                 .loginId(dto.getLoginId())
                 .password(encryptedPassword)
                 .birth(dto.getBirth())
-                .pef(Float.valueOf(dto.getPef()))
+                .pef(Double.valueOf(dto.getPef()))
                 .build();
 
         return user;
