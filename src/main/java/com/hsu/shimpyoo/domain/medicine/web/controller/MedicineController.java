@@ -1,6 +1,6 @@
-package com.hsu.shimpyoo.domain.medicine.controller;
+package com.hsu.shimpyoo.domain.medicine.web.controller;
 
-import com.hsu.shimpyoo.domain.medicine.dto.MedicineRequestDto;
+import com.hsu.shimpyoo.domain.medicine.web.dto.MedicineRequestDto;
 import com.hsu.shimpyoo.domain.medicine.service.MedicineService;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;

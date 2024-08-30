@@ -1,4 +1,4 @@
-package com.hsu.shimpyoo.domain.medicine.dto;
+package com.hsu.shimpyoo.domain.medicine.web.dto;
 
 import com.hsu.shimpyoo.domain.medicine.entity.MealTiming;
 import lombok.Getter;

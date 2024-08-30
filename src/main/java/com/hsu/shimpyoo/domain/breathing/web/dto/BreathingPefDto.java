@@ -1,4 +1,4 @@
-package com.hsu.shimpyoo.domain.breathing.dto;
+package com.hsu.shimpyoo.domain.breathing.web.dto;
 
 import lombok.*;
 
