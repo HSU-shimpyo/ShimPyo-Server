@@ -1,10 +1,9 @@
-package com.hsu.shimpyoo.domain.breathing.controller;
+package com.hsu.shimpyoo.domain.breathing.web.controller;
 
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingFlaskRequestDto;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingFlaskRequestDto;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
 import com.hsu.shimpyoo.domain.breathing.service.BreathingCheckServiceImpl;
-import com.hsu.shimpyoo.domain.user.repository.UserRepository;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;

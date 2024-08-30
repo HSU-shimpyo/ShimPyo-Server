@@ -1,12 +1,12 @@
 package com.hsu.shimpyoo.domain.breathing.service;
 
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingFlaskRequestDto;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingPefDto;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingFlaskRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingPefDto;
 import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingFileRepository;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.aws.s3.service.S3Service;
