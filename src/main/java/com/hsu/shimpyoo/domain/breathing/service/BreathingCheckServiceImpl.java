@@ -61,8 +61,8 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX); // 오늘의 끝 시간 23:59:59
         Optional<Breathing> isExistBreathing=breathingRepository.findByUserIdAndCreatedAtBetween(
                 isExistUser.get(), startOfToday, endOfToday);
-        if(isExistBreathing.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "오늘의 측정이 완료된 상태입니다.");
+        if(isExistBreathing.isPresent()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "이미 오늘의 측정 기록이 존재합니다.");
         }
 
         String date=breathingUploadRequestDto.getDate();
@@ -89,7 +89,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
 
     @Transactional
     @Override
-    public BreathingPefDto analyzeBreathing
+    public Breathing analyzeBreathing
             (BreathingFlaskRequestDto breathingFlaskRequestDto, Long breathingFileId) throws IOException {
         // 현재 사용자의 로그인용 아이디를 가지고 옴
         String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
@@ -115,9 +115,13 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
                     .third(pefValues.get("pef_3"))
                     .build();
 
+            // 최대 수치 서렂ㅇ
+            Double maxPef=Math.max(breathingPefDto.getFirst(),
+                    Math.max(breathingPefDto.getSecond(), breathingPefDto.getThird()));
+
             Breathing newBreathing=Breathing.builder()
                     .breathingFileId(breathingFileRepository.findByBreathingFileId(breathingFileId))
-                    .breathingRate(Double.valueOf(userRepository.findByLoginId(loginId).get().getPef()))
+                    .breathingRate(maxPef)
                     .userId(isExistUser.get())
                     .first(pefValues.get("pef_1"))
                     .second(pefValues.get("pef_2"))
@@ -130,6 +134,6 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "통신 중 서버 오류가 발생했습니다.");
         }
 
-        return breathingPefDto;
+        return newBreathing;
     }
 }
