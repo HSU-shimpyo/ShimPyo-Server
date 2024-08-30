@@ -55,6 +55,7 @@ public class BreathingController {
         return breathingService.getMostRecentBreathingRate(loginId);
     }
 
+    // 주간 평균 최대호기량 조회
     @GetMapping("/weekly/average")
     public ResponseEntity<CustomAPIResponse<?>> getWeeklyBreathingAverage() {
         String loginId = authenticationUserUtils.getCurrentUserId();
@@ -64,4 +65,17 @@ public class BreathingController {
         CustomAPIResponse<Map<String, Object>> response = breathingService.getWeeklyBreathingAverage(user);
         return ResponseEntity.ok(response);
     }
+
+    // 주간 평균 최대호기량 비교
+    @GetMapping("/weekly/difference")
+    public ResponseEntity<CustomAPIResponse<?>> getWeeklyBreathingDifference() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        CustomAPIResponse<Map<String, Object>> response = breathingService.getWeeklyBreathingDifference(user);
+
+        return ResponseEntity.ok(response);
+    }
+
 }
