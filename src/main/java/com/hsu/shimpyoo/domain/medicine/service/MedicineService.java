@@ -1,6 +1,6 @@
 package com.hsu.shimpyoo.domain.medicine.service;
 
-import com.hsu.shimpyoo.domain.medicine.dto.MedicineRequestDto;
+import com.hsu.shimpyoo.domain.medicine.web.dto.MedicineRequestDto;
 import com.hsu.shimpyoo.domain.medicine.entity.MealTiming;
 import com.hsu.shimpyoo.domain.medicine.entity.Medicine;
 import com.hsu.shimpyoo.domain.medicine.repository.MedicineRepository;

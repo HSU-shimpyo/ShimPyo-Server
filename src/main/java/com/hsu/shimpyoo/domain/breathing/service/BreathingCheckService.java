@@ -1,8 +1,8 @@
 package com.hsu.shimpyoo.domain.breathing.service;
 
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingFlaskRequestDto;
-import com.hsu.shimpyoo.domain.breathing.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingFlaskRequestDto;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import org.springframework.http.ResponseEntity;
 
