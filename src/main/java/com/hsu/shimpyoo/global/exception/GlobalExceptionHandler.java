@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.server.ResponseStatusException;
 
 
 import java.util.stream.Collectors;
@@ -34,5 +35,14 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                 .body(CustomAPIResponse.createFailWithout(HttpStatus.BAD_REQUEST.value(), errorMessage));
+    }
+
+    // ResponseStatusException을 사용하여 예외를 던질 때,
+    // 예외가 발생하면 위에서 정의한 예외 처리기가 해당 예외를 처리하고, 일관된 오류 응답을 반환
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<CustomAPIResponse<?>> handleResponseStatusException(ResponseStatusException e) {
+        // ResponseStatusException에서 발생한 상태 코드와 메시지를 사용
+        return ResponseEntity.status(e.getStatusCode())
+                .body(CustomAPIResponse.createFailWithout(e.getStatusCode().value(), e.getReason()));
     }
 }

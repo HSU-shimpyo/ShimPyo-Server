@@ -1,29 +1,41 @@
 package com.hsu.shimpyoo.domain.breathing.web.controller;
 
+import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
+import com.hsu.shimpyoo.domain.breathing.service.BreathingService;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingFlaskRequestDto;
 import com.hsu.shimpyoo.domain.breathing.entity.BreathingFile;
 import com.hsu.shimpyoo.domain.breathing.service.BreathingCheckServiceImpl;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
+import com.hsu.shimpyoo.domain.user.entity.User;
+import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
+import com.hsu.shimpyoo.global.security.jwt.util.AuthenticationUserUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/breathing/check")
 @RequiredArgsConstructor
 public class BreathingCheckController {
     private final BreathingCheckServiceImpl breathingCheckServiceImpl;
+    private final BreathingService breathingService;
+    private final AuthenticationUserUtils authenticationUserUtils;
+    private final UserRepository userRepository;
+
 
     // 녹음 파일 업로드
-    @PostMapping("/uploadFile")
-    public ResponseEntity<CustomAPIResponse<?>> getPef(
+    @PostMapping("/analyze")
+    public CustomAPIResponse<Map<String, Object>> analyzePef(
             @RequestPart("date") String date,
             @RequestPart("firstFile") MultipartFile firstFile,
             @RequestPart("secondFile") MultipartFile secondFile,
@@ -47,10 +59,17 @@ public class BreathingCheckController {
 
         Long breathingFileId= breathingFile.getBreathingFileId();
 
-        // flask 서버로 파일 URL을 전송하고, PEF 값을 받아옴
-        ResponseEntity<CustomAPIResponse<?>> response = breathingCheckServiceImpl.analyzeBreathing(breathingFlaskRequestDto, breathingFileId);
+        // flask 서버로 파일 URL을 전송하고, Breathing 결과를 받아옴
+        Breathing todayBreathing = breathingCheckServiceImpl.analyzeBreathing(breathingFlaskRequestDto, breathingFileId);
 
-        // 최종적으로 PEF 값을 반환
-        return response;
+        // 현재 로그인된 사용자 정보 가져오기
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        Optional<User> isExistUser = userRepository.findByLoginId(loginId);
+        if(isExistUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        }
+
+        // 최종 결과 반환
+        return breathingService.calculateBreathingResult(todayBreathing, isExistUser.get());
     }
 }
