@@ -16,6 +16,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,6 +54,7 @@ public class HospitalServiceImpl implements HospitalService {
         }
     }
 
+    @Transactional
     @Override
     public ResponseEntity<CustomAPIResponse<?>> setVisitHospital(HospitalVisitSetRequestDto hospitalVisitSetRequestDto) {
         // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
@@ -60,16 +63,13 @@ public class HospitalServiceImpl implements HospitalService {
         // 사용자 존재 여부 확인
         Optional<User> isExistUser=userRepository.findByLoginId(loginId);
         if(isExistUser.isEmpty()){
-            CustomAPIResponse<Object> res=CustomAPIResponse.createFailWithout(404, "사용자를 찾을 수 없습니다.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
-
 
         // 병원 존재 여부 확인
         Optional<Hospital> isExistHospital=hospitalRepository.findById(hospitalVisitSetRequestDto.getHospitalId());
         if(isExistHospital.isEmpty()){
-            CustomAPIResponse<Object> res=CustomAPIResponse.createFailWithout(404, "존재하지 않는 병원입니다.");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 병원입니다.");
         }
 
         HospitalVisit hospitalVisit=HospitalVisit.builder()
