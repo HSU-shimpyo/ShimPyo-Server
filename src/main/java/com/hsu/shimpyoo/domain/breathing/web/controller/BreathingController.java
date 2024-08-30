@@ -1,8 +1,7 @@
 package com.hsu.shimpyoo.domain.breathing.web.controller;
 
-import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingRequestDto;
-import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingUploadRequestDto;
 import com.hsu.shimpyoo.domain.breathing.service.BreathingService;
+import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingPefDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
@@ -11,9 +10,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -25,25 +22,10 @@ public class BreathingController {
     private final AuthenticationUserUtils authenticationUserUtils;
     private final UserRepository userRepository;
 
-    // 녹음 파일 업로드
-    @PostMapping("/uploadFile")
-    public ResponseEntity<CustomAPIResponse<?>> uploadFile(
-            @RequestPart("date") String date,
-            @RequestPart("firstFile") MultipartFile firstFile,
-            @RequestPart("secondFile") MultipartFile secondFile,
-            @RequestPart("thirdFile") MultipartFile thirdFile) throws IOException {
-
-        // 오류로 인해 RequestPart로 받은 후, DTO로 변환
-        BreathingUploadRequestDto breathingUploadRequestDto = new BreathingUploadRequestDto(date, firstFile, secondFile, thirdFile);
-
-        ResponseEntity<CustomAPIResponse<?>> result=breathingService.uploadBreathing(breathingUploadRequestDto);
-        return result;
-    }
-
     // 오늘의 쉼 결과
     @PostMapping("/today/result")
     public CustomAPIResponse<Map<String, Object>> getTodayBreathingResult(
-            @RequestBody BreathingRequestDto dto) {
+            @RequestBody BreathingPefDto dto) {
         // 현재 로그인된 사용자 정보 가져오기
         String loginId = authenticationUserUtils.getCurrentUserId();
         User user = userRepository.findByLoginId(loginId)

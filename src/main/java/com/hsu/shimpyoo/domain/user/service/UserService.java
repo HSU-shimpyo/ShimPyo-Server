@@ -23,7 +23,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final BreathingRepository breathingRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
 
@@ -40,13 +39,6 @@ public class UserService {
         // User 엔티티 생성 및 저장
         User user = User.toEntity(dto, encryptedPassword);
         userRepository.save(user);
-
-        // Breathing 엔티티 생성 및 저장 (회원가입 시 pef 값을 breathingRate로 설정)
-        Breathing breathing = Breathing.builder()
-                .userId(user)
-                .breathingRate(dto.getPef().floatValue()) // pef 값을 breathingRate로 설정
-                .build();
-        breathingRepository.save(breathing);
 
         // Access token 생성
         String accessToken = jwtTokenProvider.createToken(user.getLoginId());
