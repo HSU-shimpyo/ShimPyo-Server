@@ -220,8 +220,8 @@ public class BreathingService {
     // 주간 평균 최대호기량 비교
     public CustomAPIResponse<Map<String, Object>> getWeeklyBreathingDifference(User user) {
         // 이번 주와 지난 주의 최대호기량 평균 계산
-        float thisWeekAverage = calculateWeeklyAverage(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
-        float lastWeekAverage = calculateWeeklyAverage(user, LocalDate.now().with(DayOfWeek.MONDAY).minusWeeks(1), LocalDate.now().with(DayOfWeek.SUNDAY).minusWeeks(1));
+        double thisWeekAverage = calculateWeeklyAverage(user, LocalDate.now().with(DayOfWeek.MONDAY), LocalDate.now());
+        double lastWeekAverage = calculateWeeklyAverage(user, LocalDate.now().with(DayOfWeek.MONDAY).minusWeeks(1), LocalDate.now().with(DayOfWeek.SUNDAY).minusWeeks(1));
 
         String state; // 증가, 유지, 감소
         int differencePercent; // 증가율
@@ -230,7 +230,7 @@ public class BreathingService {
             differencePercent = thisWeekAverage > 0 ? 100 : 0;
             state = thisWeekAverage > 0 ? "증가" : "유지";
         } else {
-            differencePercent = Math.abs(Math.round(((thisWeekAverage - lastWeekAverage) / lastWeekAverage) * 100));
+            differencePercent = (int) Math.abs(Math.round(((thisWeekAverage - lastWeekAverage) / lastWeekAverage) * 100));
             state = thisWeekAverage > lastWeekAverage ? "증가" : (thisWeekAverage < lastWeekAverage ? "감소" : "유지");
         }
 
@@ -243,14 +243,14 @@ public class BreathingService {
         return CustomAPIResponse.createSuccess(200, data, "주간 평균 최대호기량 비교 결과 조회에 성공했습니다.");
     }
 
-    private float calculateWeeklyAverage(User user, LocalDate startOfWeek, LocalDate endOfWeek) {
-        return (float) startOfWeek.datesUntil(endOfWeek.plusDays(1))
+    private double calculateWeeklyAverage(User user, LocalDate startOfWeek, LocalDate endOfWeek) {
+        return startOfWeek.datesUntil(endOfWeek.plusDays(1))
                 .map(date -> dailyPefRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(
                                 user, date.atStartOfDay(), date.atTime(LocalTime.MAX))
                         .map(DailyPef::getPef).orElse(null))
                 .filter(Objects::nonNull)
-                .mapToDouble(Float::doubleValue)
+                .mapToDouble(f -> f.doubleValue())
                 .average()
-                .orElse(0);
+                .orElse(0.0);
     }
 }
