@@ -6,5 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface BreathingFileRepository extends JpaRepository<BreathingFile, Long> {
-
+    BreathingFile findByBreathingFileId(Long breathingFileId);
 }

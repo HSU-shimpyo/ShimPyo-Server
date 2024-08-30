@@ -17,20 +17,24 @@ public class Breathing extends BaseEntity {
     @Column(name = "breathing_id")
     private Long breathingId; // 호흡 측정 기본키
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "breathing_file_id", nullable = false)
+    private BreathingFile breathingFileId;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User userId; // 사용자 기본키
 
     @Column(name = "breathing_rate")
-    private Float breathingRate; // 호흡 수치
+    private Double breathingRate; // 호흡 수치
 
     @Column(name = "first")
-    private Float first; // 1회차
+    private Double first; // 1회차
 
     @Column(name = "second")
-    private Float second; // 2회차
+    private Double second; // 2회차
 
     @Column(name = "third")
-    private Float third; // 3회차
+    private Double third; // 3회차
 }
 
