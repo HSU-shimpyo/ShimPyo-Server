@@ -78,4 +78,14 @@ public class BreathingController {
         return ResponseEntity.ok(response);
     }
 
+    // 이번주 쉼 상태
+    @GetMapping("/weekly/state")
+    public ResponseEntity<CustomAPIResponse<?>> getWeeklyBreathingState() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        CustomAPIResponse<Map<String, Object>> response = breathingService.getWeeklyBreathingState(user);
+        return ResponseEntity.ok(response);
+    }
 }
