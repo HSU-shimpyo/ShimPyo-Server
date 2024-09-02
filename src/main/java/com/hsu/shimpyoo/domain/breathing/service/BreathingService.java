@@ -211,4 +211,46 @@ public class BreathingService {
                 .average()
                 .orElse(0.0);
     }
+
+    public CustomAPIResponse<Map<String, Object>> getWeeklyBreathingState(User user) {
+        LocalDateTime startOfWeek = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay();
+        LocalDateTime endOfWeek = LocalDate.now().with(DayOfWeek.SUNDAY).atTime(23, 59, 59);
+
+        List<DailyPef> weeklyPefs = dailyPefRepository.findAllByUserIdAndCreatedAtBetween(user, startOfWeek, endOfWeek);
+
+        // 상태별로 개수 계산
+        Map<State, Integer> stateCounts = new EnumMap<>(State.class);
+        stateCounts.put(State.GOOD, 0);
+        stateCounts.put(State.WARNING, 0);
+        stateCounts.put(State.DANGER, 0);
+
+        for (DailyPef pef : weeklyPefs) {
+            State state = pef.getState();
+            stateCounts.put(state, stateCounts.get(state) + 1);
+        }
+
+        String maxState;
+
+        if (stateCounts.values().stream().allMatch(count -> count == 0)) {
+            // 모든 상태의 개수가 0이면
+            maxState = "이번주 측정기록이 없습니다.";
+        } else {
+            State highestState = State.GOOD;
+            if (stateCounts.get(State.WARNING) > stateCounts.get(State.GOOD)) {
+                highestState = State.WARNING;
+            }
+            if (stateCounts.get(State.DANGER) > stateCounts.get(highestState)) {
+                highestState = State.DANGER;
+            }
+            maxState = highestState.getDescription();
+        }
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("good", stateCounts.get(State.GOOD));
+        data.put("warning", stateCounts.get(State.WARNING));
+        data.put("danger", stateCounts.get(State.DANGER));
+        data.put("maxState", maxState);
+
+        return CustomAPIResponse.createSuccess(200, data, "이번 주 쉼 상태 조회에 성공했습니다.");
+    }
 }
