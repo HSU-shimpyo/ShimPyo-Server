@@ -251,12 +251,12 @@ public class BreathingService {
         return CustomAPIResponse.createSuccess(200, data, "이번 주 쉼 상태 조회에 성공했습니다.");
     }
 
-    // 이번달 평균 최대호기량
+    // 월간 평균 최대호기량
     public CustomAPIResponse<Map<String, Object>> getMonthlyBreathingAverage(User user) {
         LocalDate now = LocalDate.now();
         YearMonth currentMonth = YearMonth.from(now);
 
-        // 1일부터 마지막 날까지의 범위를 지정
+        // 1일부터 마지막 날까지의 범위 지정
         LocalDate startOfMonth = currentMonth.atDay(1);
         LocalDate endOfMonth = currentMonth.atEndOfMonth();
 
@@ -285,14 +285,13 @@ public class BreathingService {
 
         double monthlyAverage = weeklyCount > 0 ? monthlyTotal / weeklyCount : 0;
 
-        // 결과 데이터 구성
-        Map<String, Object> responseData = new LinkedHashMap<>();
-        responseData.put("week1Average", weeklyAverages[0]);
-        responseData.put("week2Average", weeklyAverages[1]);
-        responseData.put("week3Average", weeklyAverages[2]);
-        responseData.put("week4Average", weeklyAverages[3]);
-        responseData.put("monthlyAverage", monthlyAverage);
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("week1Average", weeklyAverages[0]);
+        data.put("week2Average", weeklyAverages[1]);
+        data.put("week3Average", weeklyAverages[2]);
+        data.put("week4Average", weeklyAverages[3]);
+        data.put("monthlyAverage", monthlyAverage);
 
-        return CustomAPIResponse.createSuccess(200, responseData, "월간 평균 최대호기량 조회에 성공했습니다.");
+        return CustomAPIResponse.createSuccess(200, data, "월간 평균 최대호기량 조회에 성공했습니다.");
     }
 }

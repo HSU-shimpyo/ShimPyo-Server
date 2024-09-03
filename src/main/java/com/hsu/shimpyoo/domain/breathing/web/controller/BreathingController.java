@@ -89,6 +89,7 @@ public class BreathingController {
         return ResponseEntity.ok(response);
     }
 
+    // 월간 평균 최대호기량
     @GetMapping("/monthly/average")
     public ResponseEntity<CustomAPIResponse<?>> getMonthlyBreathingAverage() {
         String loginId = authenticationUserUtils.getCurrentUserId();
