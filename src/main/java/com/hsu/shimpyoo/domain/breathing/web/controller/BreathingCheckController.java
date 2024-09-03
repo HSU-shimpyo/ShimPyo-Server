@@ -10,8 +10,12 @@ import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import com.hsu.shimpyoo.global.security.jwt.util.AuthenticationUserUtils;
+import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -26,6 +30,7 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/breathing/check")
 @RequiredArgsConstructor
+@Validated
 public class BreathingCheckController {
     private final BreathingCheckServiceImpl breathingCheckServiceImpl;
     private final BreathingService breathingService;
@@ -36,10 +41,27 @@ public class BreathingCheckController {
     // 녹음 파일 업로드 + pef 추출 + 수치를 계산하여 반환
     @PostMapping("/getPef")
     public CustomAPIResponse<Map<String, Object>> getPef(
-            @RequestPart("date") String date,
-            @RequestPart("firstFile") MultipartFile firstFile,
-            @RequestPart("secondFile") MultipartFile secondFile,
-            @RequestPart("thirdFile") MultipartFile thirdFile) throws IOException {
+            @RequestPart("date")
+            @NotEmpty(message = "날짜를 입력해주세요")
+            @Pattern(regexp = "\\d{4}-\\d{2}-\\d{2}", message = "날짜 입력 형식을 맞춰주세요")
+            String date,
+            @RequestPart("firstFile") @NotNull(message = "첫번째 호흡 파일을 업로드 해주세요")
+            MultipartFile firstFile,
+            @RequestPart("secondFile") @NotNull(message = "두번째 호흡 파일을 업로드 해주세요")
+            MultipartFile secondFile,
+            @RequestPart("thirdFile") @NotNull(message = "세번째 호흡 파일을 업로드 해주세요")
+            MultipartFile thirdFile) throws IOException {
+
+        // 오류로 인해 파일이 비어 있는지 수동으로 검증
+        if (firstFile == null || firstFile.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "첫번째 호흡 파일을 업로드 해주세요");
+        }
+        if (secondFile == null || secondFile.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "두번째 호흡 파일을 업로드 해주세요");
+        }
+        if (thirdFile == null || thirdFile.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "세번째 호흡 파일을 업로드 해주세요");
+        }
 
         // 오류로 인해 RequestPart로 받은 후, DTO로 변환
         BreathingUploadRequestDto breathingUploadRequestDto = BreathingUploadRequestDto.builder()
