@@ -88,4 +88,14 @@ public class BreathingController {
         CustomAPIResponse<Map<String, Object>> response = breathingService.getWeeklyBreathingState(user);
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/monthly/average")
+    public ResponseEntity<CustomAPIResponse<?>> getMonthlyBreathingAverage() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        CustomAPIResponse<Map<String, Object>> response = breathingService.getMonthlyBreathingAverage(user);
+        return ResponseEntity.ok(response);
+    }
 }
