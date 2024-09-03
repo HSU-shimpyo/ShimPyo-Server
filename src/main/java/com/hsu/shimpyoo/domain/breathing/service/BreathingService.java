@@ -12,10 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.time.*;
 import java.util.*;
 
 @Service
@@ -252,5 +249,49 @@ public class BreathingService {
         data.put("maxState", maxState);
 
         return CustomAPIResponse.createSuccess(200, data, "이번 주 쉼 상태 조회에 성공했습니다.");
+    }
+
+    // 월간 평균 최대호기량
+    public CustomAPIResponse<Map<String, Object>> getMonthlyBreathingAverage(User user) {
+        LocalDate now = LocalDate.now();
+        YearMonth currentMonth = YearMonth.from(now);
+
+        // 1일부터 마지막 날까지의 범위 지정
+        LocalDate startOfMonth = currentMonth.atDay(1);
+        LocalDate endOfMonth = currentMonth.atEndOfMonth();
+
+        double[] weeklyAverages = new double[4];
+        double monthlyTotal = 0;
+        int weeklyCount = 0;
+
+        // 각 주차의 평균 계산
+        for (int i = 0; i < 4; i++) {
+            LocalDate startOfWeek = startOfMonth.plusWeeks(i);
+            LocalDate endOfWeek = startOfWeek.plusDays(6);
+
+            if (endOfWeek.isAfter(endOfMonth)) {
+                endOfWeek = endOfMonth; // 마지막 주는 월의 마지막 날까지만 계산
+            }
+
+            // 주간 평균 계산
+            double weeklyAverage = calculateWeeklyAverage(user, startOfWeek, endOfWeek);
+            weeklyAverages[i] = weeklyAverage;
+
+            if (weeklyAverage > 0) {
+                monthlyTotal += weeklyAverage;
+                weeklyCount++;
+            }
+        }
+
+        double monthlyAverage = weeklyCount > 0 ? monthlyTotal / weeklyCount : 0;
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("week1Average", weeklyAverages[0]);
+        data.put("week2Average", weeklyAverages[1]);
+        data.put("week3Average", weeklyAverages[2]);
+        data.put("week4Average", weeklyAverages[3]);
+        data.put("monthlyAverage", monthlyAverage);
+
+        return CustomAPIResponse.createSuccess(200, data, "월간 평균 최대호기량 조회에 성공했습니다.");
     }
 }
