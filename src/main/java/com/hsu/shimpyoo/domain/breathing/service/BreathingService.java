@@ -25,6 +25,7 @@ public class BreathingService {
     private final UserRepository userRepository;
     private final DailyPefRepository dailyPefRepository;
 
+    // 쉼 결과 계산
     public CustomAPIResponse<Map<String, Object>> calculateBreathingResult(Breathing todayBreathing, User user) {
         // 하루 전날의 시작 시간과 끝 시간 계산
         LocalDateTime startOfYesterday = LocalDate.now().minusDays(1).atStartOfDay();
