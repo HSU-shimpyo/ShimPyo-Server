@@ -40,7 +40,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
     private final RestTemplate restTemplate;
     private final BreathingRepository breathingRepository;
 
-    // 호흡 파일 업로드
+    // 호흡 파일을 서버에 업로드 (s3)
     @Transactional
     @Override
     public BreathingFile uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException{
@@ -87,6 +87,8 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         return breathingFile;
     }
 
+
+    // 플라스크 서버와 통신하여 파일을 넘겨주고, 호흡을 분석하여 pef를 반환
     @Transactional
     @Override
     public Breathing analyzeBreathing

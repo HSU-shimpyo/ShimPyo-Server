@@ -33,9 +33,9 @@ public class BreathingCheckController {
     private final UserRepository userRepository;
 
 
-    // 녹음 파일 업로드
-    @PostMapping("/analyze")
-    public CustomAPIResponse<Map<String, Object>> analyzePef(
+    // 녹음 파일 업로드 + pef 추출 + 수치를 계산하여 반환
+    @PostMapping("/getPef")
+    public CustomAPIResponse<Map<String, Object>> getPef(
             @RequestPart("date") String date,
             @RequestPart("firstFile") MultipartFile firstFile,
             @RequestPart("secondFile") MultipartFile secondFile,
@@ -69,7 +69,7 @@ public class BreathingCheckController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
 
-        // 최종 결과 반환
+        // flask 서버에서 받은 pef를 바탕으로 수치를 계산하고 최종 결과 반환
         return breathingService.calculateBreathingResult(todayBreathing, isExistUser.get());
     }
 }
