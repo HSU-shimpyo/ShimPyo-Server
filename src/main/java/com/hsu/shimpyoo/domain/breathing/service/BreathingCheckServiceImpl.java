@@ -1,5 +1,7 @@
 package com.hsu.shimpyoo.domain.breathing.service;
 
+import com.hsu.shimpyoo.domain.breathing.entity.DailyPef;
+import com.hsu.shimpyoo.domain.breathing.repository.DailyPefRepository;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingFlaskRequestDto;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingPefDto;
 import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
@@ -31,26 +33,27 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class BreathingCheckServiceImpl implements BreathingCheckService{
+public class BreathingCheckServiceImpl implements BreathingCheckService {
     private final S3Service s3Service;
     private final UserRepository userRepository;
     private final BreathingFileRepository breathingFileRepository;
+    private final DailyPefRepository dailyPefRepository;
 
     // flask 통신을 위한 RestTemplate
     private final RestTemplate restTemplate;
     private final BreathingRepository breathingRepository;
 
-    // 호흡 파일 업로드
+    // 호흡 파일을 서버에 업로드 (s3)
     @Transactional
     @Override
-    public BreathingFile uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException{
+    public BreathingFile uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException {
         // 현재 사용자의 로그인용 아이디를 가지고 옴
-        String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
+        String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // 사용자를 찾을 수 없다면 오류 반환
-        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
-        if(isExistUser.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        Optional<User> isExistUser = userRepository.findByLoginId(loginId);
+        if (isExistUser.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다.");
         }
 
         // 사용자 기본키 추출
@@ -59,22 +62,22 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         // 이미 측정했다면 오류 반환
         LocalDateTime startOfToday = LocalDate.now().atStartOfDay(); // 오늘의 시작 시간 00:00:00
         LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX); // 오늘의 끝 시간 23:59:59
-        Optional<Breathing> isExistBreathing=breathingRepository.findByUserIdAndCreatedAtBetween(
+        Optional<Breathing> isExistBreathing = breathingRepository.findByUserIdAndCreatedAtBetween(
                 isExistUser.get(), startOfToday, endOfToday);
-        if(isExistBreathing.isPresent()){
+        if (isExistBreathing.isPresent()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "이미 오늘의 측정 기록이 존재합니다.");
         }
 
-        String date=breathingUploadRequestDto.getDate();
-        MultipartFile firstFile= breathingUploadRequestDto.getFirstFile();
-        MultipartFile secondFile= breathingUploadRequestDto.getSecondFile();
-        MultipartFile thirdFile= breathingUploadRequestDto.getThirdFile();
+        String date = breathingUploadRequestDto.getDate();
+        MultipartFile firstFile = breathingUploadRequestDto.getFirstFile();
+        MultipartFile secondFile = breathingUploadRequestDto.getSecondFile();
+        MultipartFile thirdFile = breathingUploadRequestDto.getThirdFile();
 
-        String firstUrl= s3Service.uploadFile(firstFile, userId, date, 1);
-        String secondUrl= s3Service.uploadFile(secondFile, userId, date, 2);
-        String thirdUrl= s3Service.uploadFile(thirdFile, userId, date, 3);
+        String firstUrl = s3Service.uploadFile(firstFile, userId, date, 1);
+        String secondUrl = s3Service.uploadFile(secondFile, userId, date, 2);
+        String thirdUrl = s3Service.uploadFile(thirdFile, userId, date, 3);
 
-        BreathingFile breathingFile=BreathingFile.builder()
+        BreathingFile breathingFile = BreathingFile.builder()
                 .userId(isExistUser.get())
                 .firstUrl(firstUrl)
                 .secondUrl(secondUrl)
@@ -87,17 +90,65 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         return breathingFile;
     }
 
+
+    // 호흡 기록 삭제
+    @Transactional
+    @Override
+    public void deleteBreathing() {
+        // 현재 사용자의 로그인용 아이디를 가지고 옴
+        String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 사용자를 찾을 수 없다면 오류 반환
+        Optional<User> isExistUser = userRepository.findByLoginId(loginId);
+        if (isExistUser.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다.");
+        }
+
+        // 사용자 기본키 추출
+        Long userId = isExistUser.get().getId();
+
+        // 오늘 측정한 기록 찾기
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay(); // 오늘의 시작 시간 00:00:00
+        LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX); // 오늘의 끝 시간 23:59:59
+        Optional<Breathing> isExistBreathing = breathingRepository.findByUserIdAndCreatedAtBetween(
+                isExistUser.get(), startOfToday, endOfToday);
+
+        if (isExistBreathing.isPresent()) {
+            // 오늘의 pef를 지운다 (dailyPef)
+            Optional<DailyPef> isExistDailyPef=dailyPefRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+                    isExistUser.get(), startOfToday, endOfToday);
+            if (isExistDailyPef.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, "오늘의 pef 값이 존재하지 않습니다.");
+            }
+            dailyPefRepository.delete(isExistDailyPef.get());
+
+            // 호흡 기록을 지운다 (breathing)
+            breathingRepository.delete(isExistBreathing.get());
+
+
+            // 녹음 파일을 지운다 (breathingFile)
+            BreathingFile breathingFileId=isExistBreathing.get().getBreathingFileId();
+            breathingFileRepository.delete(breathingFileId);
+
+        }
+        else{
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "오늘 측정한 호흡이 존재하지 않습니다.");
+        }
+    }
+
+
+    // 플라스크 서버와 통신하여 파일을 넘겨주고, 호흡을 분석하여 pef를 반환
     @Transactional
     @Override
     public Breathing analyzeBreathing
-            (BreathingFlaskRequestDto breathingFlaskRequestDto, Long breathingFileId) throws IOException {
+    (BreathingFlaskRequestDto breathingFlaskRequestDto, Long breathingFileId) throws IOException {
         // 현재 사용자의 로그인용 아이디를 가지고 옴
-        String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
+        String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // 사용자를 찾을 수 없다면 오류 반환
-        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
-        if(isExistUser.isEmpty()){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        Optional<User> isExistUser = userRepository.findByLoginId(loginId);
+        if (isExistUser.isEmpty()) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "존재하지 않는 사용자입니다.");
         }
 
         // 플라스크 서버 엔드포인트
@@ -106,34 +157,35 @@ public class BreathingCheckServiceImpl implements BreathingCheckService{
         // Flask 서버로 POST 요청을 보내서 PEF 값을 받아옴
         ResponseEntity<Map> response = restTemplate.postForEntity(flaskUrl, breathingFlaskRequestDto, Map.class);
 
-            // "pef_1": 300.0 같은 형식으로 저장
-            Map<String, Double> pefValues = response.getBody();
+        // "pef_1": 300.0 같은 형식으로 저장
+        Map<String, Double> pefValues = response.getBody();
 
-            BreathingPefDto breathingPefDto=BreathingPefDto.builder()
-                    .first(pefValues.get("pef_1"))
-                    .second(pefValues.get("pef_2"))
-                    .third(pefValues.get("pef_3"))
-                    .build();
+        BreathingPefDto breathingPefDto = BreathingPefDto.builder()
+                .first(pefValues.get("pef_1"))
+                .second(pefValues.get("pef_2"))
+                .third(pefValues.get("pef_3"))
+                .build();
 
-            // 최대 수치 서렂ㅇ
-            Double maxPef=Math.max(breathingPefDto.getFirst(),
-                    Math.max(breathingPefDto.getSecond(), breathingPefDto.getThird()));
+        // 최대 수치 서렂ㅇ
+        Double maxPef = Math.max(breathingPefDto.getFirst(),
+                Math.max(breathingPefDto.getSecond(), breathingPefDto.getThird()));
 
-            Breathing newBreathing=Breathing.builder()
-                    .breathingFileId(breathingFileRepository.findByBreathingFileId(breathingFileId))
-                    .breathingRate(maxPef)
-                    .userId(isExistUser.get())
-                    .first(pefValues.get("pef_1"))
-                    .second(pefValues.get("pef_2"))
-                    .third(pefValues.get("pef_3"))
-                    .build();
+        Breathing newBreathing = Breathing.builder()
+                .breathingFileId(breathingFileRepository.findByBreathingFileId(breathingFileId))
+                .breathingRate(maxPef)
+                .userId(isExistUser.get())
+                .first(pefValues.get("pef_1"))
+                .second(pefValues.get("pef_2"))
+                .third(pefValues.get("pef_3"))
+                .build();
 
-            breathingRepository.save(newBreathing);
+        breathingRepository.save(newBreathing);
 
-        if(!response.getStatusCode().is2xxSuccessful()){
+        if (!response.getStatusCode().is2xxSuccessful()) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "통신 중 서버 오류가 발생했습니다.");
         }
 
         return newBreathing;
     }
+
 }
