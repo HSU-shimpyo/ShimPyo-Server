@@ -11,4 +11,5 @@ import java.util.Optional;
 public interface DailyPefRepository extends JpaRepository<DailyPef, Long> {
     Optional<DailyPef> findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(User userId, LocalDateTime startOfDay, LocalDateTime endOfDay);
     List<DailyPef> findAllByUserIdAndCreatedAtBetween(User user, LocalDateTime startOfWeek, LocalDateTime endOfWeek);
+
 }

@@ -1,5 +1,7 @@
 package com.hsu.shimpyoo.domain.breathing.web.controller;
 
+import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
+import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.breathing.service.BreathingService;
 import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingPefDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
@@ -11,8 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/breathing")
@@ -21,6 +27,7 @@ public class BreathingController {
     private final BreathingService breathingService;
     private final AuthenticationUserUtils authenticationUserUtils;
     private final UserRepository userRepository;
+    private final BreathingRepository breathingRepository;
 
 //    // 오늘의 쉼 결과
 //    @PostMapping("/today/result")
@@ -33,6 +40,29 @@ public class BreathingController {
 //
 //        return breathingService.calculateBreathingResult(dto, user);
 //    }
+
+    // 오늘 측정한 호흡 기록을 찾아서, 결과를 조회
+    @GetMapping("/today/result")
+    public CustomAPIResponse<Map<String, Object>> getTodayBreathingResult() {
+         //현재 로그인된 사용자 정보 가져오기
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User isExistUser= userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        // 오늘 측정한 기록이 있는지 조회
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay(); // 오늘의 시작 시간 00:00:00
+        LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX); // 오늘의 끝 시간 23:59:59
+        Optional<Breathing> isExistBreathing = breathingRepository.findByUserIdAndCreatedAtBetween(
+                isExistUser, startOfToday, endOfToday);
+
+        // 있다면 계산
+        if (isExistBreathing.isPresent()) {
+            return breathingService.calculateBreathingResult(isExistBreathing.get(), isExistUser);
+        }
+
+        // 없다면 다른 응답을 반환
+        return CustomAPIResponse.createSuccess(200, null, "오늘의 측정 기록이 존재하지 않습니다.");
+    }
 
     // 오늘을 기준으로 지난 7일간의 쉼 결과 조회
     @GetMapping("/today/weekly")

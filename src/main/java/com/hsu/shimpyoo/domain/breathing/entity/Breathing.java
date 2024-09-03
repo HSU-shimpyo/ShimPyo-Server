@@ -18,7 +18,7 @@ public class Breathing extends BaseEntity {
     private Long breathingId; // 호흡 측정 기본키
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "breathing_file_id", nullable = false)
+    @JoinColumn(name = "breathing_file_id")
     private BreathingFile breathingFileId;
 
     @ManyToOne(fetch = FetchType.LAZY)
