@@ -6,6 +6,7 @@ import com.hsu.shimpyoo.domain.hospital.repository.HospitalRepository;
 import com.hsu.shimpyoo.domain.hospital.repository.HospitalVisitRepository;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchRequestDto;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchResponseDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitDto;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitSetRequestDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -54,6 +56,7 @@ public class HospitalServiceImpl implements HospitalService {
         }
     }
 
+    // 병원 방문 일정 설정
     @Transactional
     @Override
     public ResponseEntity<CustomAPIResponse<?>> setVisitHospital(HospitalVisitSetRequestDto hospitalVisitSetRequestDto) {
@@ -81,6 +84,57 @@ public class HospitalServiceImpl implements HospitalService {
         hospitalVisitRepository.save(hospitalVisit);
 
         CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, null, "병원 방문 일정이 기록되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 병원 방문 일정 전체 조회
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> getAllHospitalVisit() {
+        // 사용자 정보를 가져온다
+        Optional<User> isExistUser=userRepository.findByLoginId(SecurityContextHolder.getContext().getAuthentication().getName());
+        if(isExistUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        }
+
+        // 병원 방문 기록 모두 조회
+        List<HospitalVisitDto> hospitalVisitDtoList=hospitalVisitRepository.findByUserId(isExistUser.get())
+                .stream()
+                .map(hospitalVisit -> HospitalVisitDto.builder()
+                        .hospitalVisitId(hospitalVisit.getHospitalVisitId())
+                        .hospitalName(hospitalVisit.getHospitalId().getHospitalName())
+                        .hospitalAddress(hospitalVisit.getHospitalId().getHospitalAddress())
+                        .hospitalPhoneNumber(hospitalVisit.getHospitalId().getHospitalPhone())
+                        .visitTime(hospitalVisit.getVisitTime())
+                        .build())
+                .toList();
+
+        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, hospitalVisitDtoList, "병원 방문 일정이 조회되었습니다.");
+
+        if(hospitalVisitDtoList.isEmpty()){
+            res=CustomAPIResponse.createSuccess(200, null, "아직 방문 일정을 설정하지 않았습니다.");
+        }
+
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> getOneHospitalVisit(Long hospitalVisitId) {
+        Optional<HospitalVisit> isExistHospitalVisit=hospitalVisitRepository.findById(hospitalVisitId);
+
+        // 병원 방문 일정이 존재하지 않는 경우
+        if(isExistHospitalVisit.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "병원 방문 일정을 찾을 수 없습니다.");
+        }
+
+        HospitalVisitDto response=HospitalVisitDto.builder()
+                .hospitalVisitId(isExistHospitalVisit.get().getHospitalVisitId())
+                .hospitalName(isExistHospitalVisit.get().getHospitalId().getHospitalName())
+                .hospitalAddress(isExistHospitalVisit.get().getHospitalId().getHospitalAddress())
+                .hospitalPhoneNumber(isExistHospitalVisit.get().getHospitalId().getHospitalPhone())
+                .visitTime(isExistHospitalVisit.get().getVisitTime())
+                .build();
+
+        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, response, "병원 방문 일정이 조회되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
