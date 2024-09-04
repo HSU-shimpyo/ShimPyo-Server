@@ -99,4 +99,15 @@ public class BreathingController {
         CustomAPIResponse<Map<String, Object>> response = breathingService.getMonthlyBreathingAverage(user);
         return ResponseEntity.ok(response);
     }
+
+    // 월간 평균 최대호기량 비교
+    @GetMapping("/monthly/difference")
+    public ResponseEntity<CustomAPIResponse<?>> getMonthlyBreathingDifference() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        CustomAPIResponse<Map<String, Object>> response = breathingService.getMonthlyBreathingDifference(user);
+        return ResponseEntity.ok(response);
+    }
 }
