@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -199,17 +200,6 @@ public class BreathingService {
         return CustomAPIResponse.createSuccess(200, data, "주간 평균 최대호기량 비교 결과 조회에 성공했습니다.");
     }
 
-    private double calculateWeeklyAverage(User user, LocalDate startOfWeek, LocalDate endOfWeek) {
-        return startOfWeek.datesUntil(endOfWeek.plusDays(1))
-                .map(date -> dailyPefRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(
-                                user, date.atStartOfDay(), date.atTime(LocalTime.MAX))
-                        .map(DailyPef::getPef).orElse(null))
-                .filter(Objects::nonNull)
-                .mapToDouble(f -> f.doubleValue())
-                .average()
-                .orElse(0.0);
-    }
-
     public CustomAPIResponse<Map<String, Object>> getWeeklyBreathingState(User user) {
         LocalDateTime startOfWeek = LocalDate.now().with(DayOfWeek.MONDAY).atStartOfDay();
         LocalDateTime endOfWeek = LocalDate.now().with(DayOfWeek.SUNDAY).atTime(23, 59, 59);
@@ -295,4 +285,68 @@ public class BreathingService {
 
         return CustomAPIResponse.createSuccess(200, data, "월간 평균 최대호기량 조회에 성공했습니다.");
     }
+
+    // 월간 평균 최대호기량 비교
+    public CustomAPIResponse<Map<String, Object>> getMonthlyBreathingDifference(User user) {
+        LocalDate now = LocalDate.now();
+        LocalDate startOfThisMonth = now.withDayOfMonth(1);
+        LocalDate endOfThisMonth = now.withDayOfMonth(now.lengthOfMonth());
+
+        LocalDate startOfLastMonth = startOfThisMonth.minusMonths(1).withDayOfMonth(1);
+        LocalDate endOfLastMonth = startOfLastMonth.withDayOfMonth(startOfLastMonth.lengthOfMonth());
+
+        // 이번 달과 저번 달의 평균 최대호기량 계산
+        double thisMonthAverage = calculateMonthlyAverage(user, startOfThisMonth, endOfThisMonth);
+        double lastMonthAverage = calculateMonthlyAverage(user, startOfLastMonth, endOfLastMonth);
+
+        // 변화율 계산
+        String changeDirection;
+        int differencePercent = 0;
+
+        if (lastMonthAverage == 0) {
+            if (thisMonthAverage > 0) {
+                differencePercent = 100; // 저번 달 데이터가 없고 이번 달 데이터가 있으면 100% 증가로 간주
+                changeDirection = "증가";
+            } else {
+                differencePercent = 0;
+                changeDirection = "유지";
+            }
+        } else {
+            differencePercent = (int) Math.round(Math.abs(((thisMonthAverage - lastMonthAverage) / lastMonthAverage) * 100));
+            changeDirection = thisMonthAverage > lastMonthAverage ? "증가" : (thisMonthAverage < lastMonthAverage ? "감소" : "유지");
+        }
+
+        Map<String, Object> data = new LinkedHashMap<>();
+        data.put("lastMonthAverage", lastMonthAverage > 0 ? lastMonthAverage : "데이터 없음");
+        data.put("thisMonthAverage", thisMonthAverage > 0 ? thisMonthAverage : "데이터 없음");
+        data.put("differencePercent", differencePercent);
+        data.put("changeDirection", changeDirection);
+
+        return CustomAPIResponse.createSuccess(200, data, "월간 평균 최대호기량 비교 결과 조회에 성공했습니다.");
+    }
+
+    // 주간 평균 최대호기량 계산 메서드
+    private double calculateWeeklyAverage(User user, LocalDate startOfWeek, LocalDate endOfWeek) {
+        return startOfWeek.datesUntil(endOfWeek.plusDays(1))
+                .map(date -> dailyPefRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+                                user, date.atStartOfDay(), date.atTime(LocalTime.MAX))
+                        .map(DailyPef::getPef).orElse(null))
+                .filter(Objects::nonNull)
+                .mapToDouble(f -> f.doubleValue())
+                .average()
+                .orElse(0.0);
+    }
+
+    // 월간 평균 최대호기량 계산 메서드
+    private double calculateMonthlyAverage(User user, LocalDate startOfMonth, LocalDate endOfMonth) {
+        return startOfMonth.datesUntil(endOfMonth.plusDays(1))
+                .map(date -> dailyPefRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(
+                                user, date.atStartOfDay(), date.atTime(LocalTime.MAX))
+                        .map(DailyPef::getPef).orElse(null))
+                .filter(Objects::nonNull) // 값이 있는 것만 필터링
+                .mapToDouble(f -> f.doubleValue()) // double로 변환
+                .average() // 평균 계산
+                .orElse(0.0); // 값이 없으면 0.0 반환
+    }
+
 }
