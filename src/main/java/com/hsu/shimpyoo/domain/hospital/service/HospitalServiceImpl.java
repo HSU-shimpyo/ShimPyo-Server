@@ -54,6 +54,7 @@ public class HospitalServiceImpl implements HospitalService {
         }
     }
 
+    // 병원 방문 일정 설정
     @Transactional
     @Override
     public ResponseEntity<CustomAPIResponse<?>> setVisitHospital(HospitalVisitSetRequestDto hospitalVisitSetRequestDto) {
@@ -81,6 +82,22 @@ public class HospitalServiceImpl implements HospitalService {
         hospitalVisitRepository.save(hospitalVisit);
 
         CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, null, "병원 방문 일정이 기록되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 병원 방문 일정 전체 조회
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> getAllHospitalVisit() {
+        // 사용자 정보를 가져온다
+        Optional<User> isExistUser=userRepository.findByLoginId(SecurityContextHolder.getContext().getAuthentication().getName());
+        if(isExistUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        }
+
+        // 병원 방문 기록 모두 조회
+        List<HospitalVisit> hospitalVisits=hospitalVisitRepository.findByUserId(isExistUser.get());
+
+        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, hospitalVisits, "병원 방문 일정이 조회되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
