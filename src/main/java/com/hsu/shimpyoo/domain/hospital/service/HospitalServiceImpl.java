@@ -6,6 +6,7 @@ import com.hsu.shimpyoo.domain.hospital.repository.HospitalRepository;
 import com.hsu.shimpyoo.domain.hospital.repository.HospitalVisitRepository;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchRequestDto;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchResponseDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitDto;
 import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitSetRequestDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
@@ -21,6 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -95,9 +97,17 @@ public class HospitalServiceImpl implements HospitalService {
         }
 
         // 병원 방문 기록 모두 조회
-        List<HospitalVisit> hospitalVisits=hospitalVisitRepository.findByUserId(isExistUser.get());
+        List<HospitalVisitDto> hospitalVisitDtoList=hospitalVisitRepository.findByUserId(isExistUser.get())
+                .stream()
+                .map(hospitalVisit -> HospitalVisitDto.builder()
+                        .hospitalName(hospitalVisit.getHospitalId().getHospitalName())
+                        .hospitalAddress(hospitalVisit.getHospitalId().getHospitalAddress())
+                        .hospitalPhoneNumber(hospitalVisit.getHospitalId().getHospitalPhone())
+                        .visitTime(hospitalVisit.getVisitTime())
+                        .build())
+                .toList();
 
-        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, hospitalVisits, "병원 방문 일정이 조회되었습니다.");
+        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, hospitalVisitDtoList, "병원 방문 일정이 조회되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
