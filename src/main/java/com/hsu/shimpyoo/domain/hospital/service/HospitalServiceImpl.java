@@ -100,6 +100,7 @@ public class HospitalServiceImpl implements HospitalService {
         List<HospitalVisitDto> hospitalVisitDtoList=hospitalVisitRepository.findByUserId(isExistUser.get())
                 .stream()
                 .map(hospitalVisit -> HospitalVisitDto.builder()
+                        .hospitalVisitId(hospitalVisit.getHospitalVisitId())
                         .hospitalName(hospitalVisit.getHospitalId().getHospitalName())
                         .hospitalAddress(hospitalVisit.getHospitalId().getHospitalAddress())
                         .hospitalPhoneNumber(hospitalVisit.getHospitalId().getHospitalPhone())
@@ -108,6 +109,11 @@ public class HospitalServiceImpl implements HospitalService {
                 .toList();
 
         CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, hospitalVisitDtoList, "병원 방문 일정이 조회되었습니다.");
+
+        if(hospitalVisitDtoList.isEmpty()){
+            res=CustomAPIResponse.createSuccess(200, null, "아직 방문 일정을 설정하지 않았습니다.");
+        }
+
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
