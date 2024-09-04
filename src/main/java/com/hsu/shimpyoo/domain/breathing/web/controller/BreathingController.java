@@ -140,4 +140,16 @@ public class BreathingController {
         CustomAPIResponse<Map<String, Object>> response = breathingService.getMonthlyBreathingDifference(user);
         return ResponseEntity.ok(response);
     }
+
+    // 이번달 쉼 상태
+    @GetMapping("/monthly/state")
+    public ResponseEntity<CustomAPIResponse<?>> getMonthlyBreathingState() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        CustomAPIResponse<Map<String, Object>> response = breathingService.getMonthlyBreathingState(user);
+        return ResponseEntity.ok(response);
+    }
+
 }
