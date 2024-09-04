@@ -117,5 +117,26 @@ public class HospitalServiceImpl implements HospitalService {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> getOneHospitalVisit(Long hospitalVisitId) {
+        Optional<HospitalVisit> isExistHospitalVisit=hospitalVisitRepository.findById(hospitalVisitId);
+
+        // 병원 방문 일정이 존재하지 않는 경우
+        if(isExistHospitalVisit.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "병원 방문 일정을 찾을 수 없습니다.");
+        }
+
+        HospitalVisitDto response=HospitalVisitDto.builder()
+                .hospitalVisitId(isExistHospitalVisit.get().getHospitalVisitId())
+                .hospitalName(isExistHospitalVisit.get().getHospitalId().getHospitalName())
+                .hospitalAddress(isExistHospitalVisit.get().getHospitalId().getHospitalAddress())
+                .hospitalPhoneNumber(isExistHospitalVisit.get().getHospitalId().getHospitalPhone())
+                .visitTime(isExistHospitalVisit.get().getVisitTime())
+                .build();
+
+        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, response, "병원 방문 일정이 조회되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
 
 }
