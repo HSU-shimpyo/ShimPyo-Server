@@ -145,9 +145,11 @@ public class HospitalServiceImpl implements HospitalService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
 
-        // 가장 빠른 방문 일정을 찾음
+        LocalDateTime now = LocalDateTime.now();  // 현재 시간
+
+        // 현재보다 미래인 일정 중에서 가장 빠른 방문 일정을 찾음
         Optional<HospitalVisit> firstHospitalVisit =
-                hospitalVisitRepository.findFirstByUserIdOrderByVisitTimeAsc(isExistUser.get().getId());
+                hospitalVisitRepository.findFirstByUserIdAndVisitTimeAfterOrderByVisitTimeAsc(isExistUser.get(), now);
 
         // 방문 일정이 없다면, 그에 맞는 응답을 반환
         if(firstHospitalVisit.isEmpty()){
@@ -157,11 +159,10 @@ public class HospitalServiceImpl implements HospitalService {
 
         // 가장 빠른 방문 시간
         LocalDateTime firstVisitTime=firstHospitalVisit.get().getVisitTime();
-        LocalDateTime now = LocalDateTime.now();  // 현재 시간
 
-        int leftDay = (int) ChronoUnit.DAYS.between(firstVisitTime, now);
-        int leftHour = (int) (ChronoUnit.HOURS.between(firstVisitTime, now) % 24);
-        int leftMinute = (int) (ChronoUnit.MINUTES.between(firstVisitTime, now) % 60);
+        int leftDay = (int) ChronoUnit.DAYS.between(now, firstVisitTime);
+        int leftHour = (int) (ChronoUnit.HOURS.between(now, firstVisitTime) % 24);
+        int leftMinute = (int) (ChronoUnit.MINUTES.between(now, firstVisitTime) % 60);
 
 
         HospitalVisitTimeLeftDto hospitalVisitTimeLeftDto=HospitalVisitTimeLeftDto.builder()
