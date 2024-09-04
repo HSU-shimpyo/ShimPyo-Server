@@ -52,4 +52,10 @@ public class HospitalController {
         ResponseEntity<CustomAPIResponse<?>> result=hospitalService.getOneHospitalVisit(hospitalVisitId);
         return result;
     }
+
+    @GetMapping("/getTimeLeft")
+    public ResponseEntity<CustomAPIResponse<?>> getTimeLeft(){
+        ResponseEntity<CustomAPIResponse<?>> result=hospitalService.getTimeLeftHospitalVisit();
+        return result;
+    }
 }
