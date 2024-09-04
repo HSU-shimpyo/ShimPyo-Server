@@ -4,10 +4,7 @@ import com.hsu.shimpyoo.domain.hospital.entity.Hospital;
 import com.hsu.shimpyoo.domain.hospital.entity.HospitalVisit;
 import com.hsu.shimpyoo.domain.hospital.repository.HospitalRepository;
 import com.hsu.shimpyoo.domain.hospital.repository.HospitalVisitRepository;
-import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchRequestDto;
-import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalSearchResponseDto;
-import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitDto;
-import com.hsu.shimpyoo.domain.hospital.web.dto.HospitalVisitSetRequestDto;
+import com.hsu.shimpyoo.domain.hospital.web.dto.*;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
@@ -20,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -136,6 +135,46 @@ public class HospitalServiceImpl implements HospitalService {
 
         CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, response, "병원 방문 일정이 조회되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> getTimeLeftHospitalVisit() {
+        // 사용자 존재 확인
+        Optional<User> isExistUser=userRepository.findByLoginId(SecurityContextHolder.getContext().getAuthentication().getName());
+        if(isExistUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        }
+
+        // 가장 빠른 방문 일정을 찾음
+        Optional<HospitalVisit> firstHospitalVisit =
+                hospitalVisitRepository.findFirstByUserIdOrderByVisitTimeAsc(isExistUser.get().getId());
+
+        // 방문 일정이 없다면, 그에 맞는 응답을 반환
+        if(firstHospitalVisit.isEmpty()){
+            CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, null, "설정한 병원 방문 일정이 없습니다.");
+            return ResponseEntity.status(HttpStatus.OK).body(res);
+        }
+
+        // 가장 빠른 방문 시간
+        LocalDateTime firstVisitTime=firstHospitalVisit.get().getVisitTime();
+        LocalDateTime now = LocalDateTime.now();  // 현재 시간
+
+        int leftDay = (int) ChronoUnit.DAYS.between(firstVisitTime, now);
+        int leftHour = (int) (ChronoUnit.HOURS.between(firstVisitTime, now) % 24);
+        int leftMinute = (int) (ChronoUnit.MINUTES.between(firstVisitTime, now) % 60);
+
+
+        HospitalVisitTimeLeftDto hospitalVisitTimeLeftDto=HospitalVisitTimeLeftDto.builder()
+                .day(leftDay)
+                .hour(leftHour)
+                .minute(leftMinute)
+                .build();
+
+
+        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, hospitalVisitTimeLeftDto,
+                "병원 방문까지 남은 시간이 조회되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+
     }
 
 
