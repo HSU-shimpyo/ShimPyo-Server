@@ -37,8 +37,19 @@ public class HospitalController {
             CustomAPIResponse<Object> res = CustomAPIResponse.createFailWithout(400, "방문 일정은 현재보다 미래여야 합니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(res);
         }
-
         ResponseEntity<CustomAPIResponse<?>> result=hospitalService.setVisitHospital(hospitalVisitSetRequestDto);
+        return result;
+    }
+
+    @GetMapping("/getAllHospitalVisit")
+    public ResponseEntity<CustomAPIResponse<?>> getAllHospitalVisit(){
+        ResponseEntity<CustomAPIResponse<?>> result=hospitalService.getAllHospitalVisit();
+        return result;
+    }
+
+    @GetMapping("/getOneHospitalVisit")
+    public ResponseEntity<CustomAPIResponse<?>> getOneHospitalVisit(@RequestParam Long hospitalVisitId){
+        ResponseEntity<CustomAPIResponse<?>> result=hospitalService.getOneHospitalVisit(hospitalVisitId);
         return result;
     }
 }
