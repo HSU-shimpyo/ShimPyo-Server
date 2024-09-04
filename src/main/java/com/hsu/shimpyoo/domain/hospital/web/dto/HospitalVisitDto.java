@@ -13,6 +13,9 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Builder
 public class HospitalVisitDto {
+    // 병원 방문 기본 키
+    private Long hospitalVisitId;
+
     // 방문할 병원 이름
     private String hospitalName;
 
