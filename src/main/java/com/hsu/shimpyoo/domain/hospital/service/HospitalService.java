@@ -10,4 +10,5 @@ public interface HospitalService {
     ResponseEntity<CustomAPIResponse<?>> setVisitHospital(HospitalVisitSetRequestDto hospitalVisitSetRequestDto);
     ResponseEntity<CustomAPIResponse<?>> getAllHospitalVisit();
     ResponseEntity<CustomAPIResponse<?>> getOneHospitalVisit(Long hospitalVisitId);
+    ResponseEntity<CustomAPIResponse<?>> getTimeLeftHospitalVisit();
 }
