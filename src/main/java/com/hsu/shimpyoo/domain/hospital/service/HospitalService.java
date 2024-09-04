@@ -9,4 +9,5 @@ public interface HospitalService {
     ResponseEntity<CustomAPIResponse<?>> searchHospital(HospitalSearchRequestDto hospitalSearchRequestDto);
     ResponseEntity<CustomAPIResponse<?>> setVisitHospital(HospitalVisitSetRequestDto hospitalVisitSetRequestDto);
     ResponseEntity<CustomAPIResponse<?>> getAllHospitalVisit();
+    ResponseEntity<CustomAPIResponse<?>> getOneHospitalVisit(Long hospitalVisitId);
 }

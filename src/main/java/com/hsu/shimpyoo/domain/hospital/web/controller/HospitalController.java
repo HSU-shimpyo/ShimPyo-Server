@@ -46,4 +46,10 @@ public class HospitalController {
         ResponseEntity<CustomAPIResponse<?>> result=hospitalService.getAllHospitalVisit();
         return result;
     }
+
+    @GetMapping("/getOneHospitalVisit")
+    public ResponseEntity<CustomAPIResponse<?>> getOneHospitalVisit(@RequestParam Long hospitalVisitId){
+        ResponseEntity<CustomAPIResponse<?>> result=hospitalService.getOneHospitalVisit(hospitalVisitId);
+        return result;
+    }
 }
