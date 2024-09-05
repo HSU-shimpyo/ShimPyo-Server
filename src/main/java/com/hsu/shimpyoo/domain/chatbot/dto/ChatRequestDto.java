@@ -1,26 +1,39 @@
 package com.hsu.shimpyoo.domain.chatbot.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
-public class ChatRequestDto { // OpenAI API로 보낼 전체 요청을 담는 dto
+@JsonInclude(JsonInclude.Include.NON_NULL) // null 값을 포함하지 않도록 설정
+public class ChatRequestDto {
+
+    @JsonProperty("model")
     private String model;
 
-    // 다른 생성자나 메서드에서 chatMessageDtos가 null로 초기화되지 않도록, 필드를 선언할 때 바로 빈 리스트로 초기화
-    private List<ChatMessageDto> chatMessageDtos=new ArrayList<>();
+    @JsonProperty("messages")
+    private List<Message> messages;
 
-    public ChatRequestDto(String model, String prompt) {
-        this.model = model != null ? model : "gpt-3.5-turbo";  // 기본 모델 지정
-        this.chatMessageDtos =  new ArrayList<>();
-        this.chatMessageDtos.add(new ChatMessageDto("user", prompt));
+    public ChatRequestDto(String model, String systemMessage, String userMessage) {
+        this.model = model;
+        this.messages = new ArrayList<>();
+        this.messages.add(new Message("system", systemMessage));
+        this.messages.add(new Message("user", userMessage));
     }
+
+    public static class Message {
+        @JsonProperty("role")
+        private String role;
+
+        @JsonProperty("content")
+        private String content;
+
+        public Message(String role, String content) {
+            this.role = role;
+            this.content = content;
+        }
+
+    }
+
 }

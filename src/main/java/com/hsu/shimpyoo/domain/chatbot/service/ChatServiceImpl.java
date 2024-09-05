@@ -1,85 +1,57 @@
 package com.hsu.shimpyoo.domain.chatbot.service;
 
-import com.hsu.shimpyoo.domain.chatbot.dto.ChatMessageDto;
 import com.hsu.shimpyoo.domain.chatbot.dto.ChatRequestDto;
-import com.hsu.shimpyoo.domain.chatbot.dto.ChatResponseDto;
-import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
-@RequiredArgsConstructor
 @Service
 public class ChatServiceImpl implements ChatService {
-    private final RestTemplate restTemplate;
+
     private final String apiUrl = "https://api.openai.com/v1/chat/completions";
-    private final String promptPrefix = "너는 지상 최고의 천식 전문가야. 최선을 다 해서 천식에 관한 답을 해줘." +
-            " 천식에 대한 답변이 아니면, " + "'저는 천식 관련 챗봇이에요, 천식과 관련된 질문만 답변드릴 수 있습니다.'는 답변을 해줘.";
 
-    @Override
-    public ChatResponseDto askForChat(String content) {
-        // 사용자가 보낸 메시지에 프롬프트를 더하여 새로운 메시지를 생성
-        String realMessage = addPrefixToUserMessage(content);
+    @Value("${gpt.api.key}")
+    private String apiKey;
 
-        // ChatRequestDto 객체를 생성하여 OpenAI API에 사용할 모델 및 메시지 추가
-        ChatRequestDto realRequest = new ChatRequestDto("gpt-3.5-turbo", realMessage);
 
-        String responseMessage = generateResponse(realRequest);
-
-        return createResponse(responseMessage);
-    }
-
-    // 사용자 메시지에 프롬프트를 추가하는 메서드
-    private String addPrefixToUserMessage(String userMessage) {
-        return promptPrefix + " " + userMessage;
-    }
-
-    // openAI api 호출
-    private String generateResponse(ChatRequestDto request) {
-        // 1. 요청 엔티티 생성 (이미 RestTemplate에 API Key가 설정되어 있음)
-        HttpEntity<ChatRequestDto> entity = new HttpEntity<>(request);
-
+    public String askForChat(String userMessage) {
         try {
-            // 2. RestTemplate을 사용하여 OpenAI API 호출
-            ResponseEntity<ChatResponseDto> response = restTemplate.exchange(
-                    apiUrl,
-                    HttpMethod.POST,
-                    entity,
-                    ChatResponseDto.class
-            );
+            // 요청 메시지 구성
+            String prompt = "당신은 지상 최고의 천식 전문가입니다. 최선을 다 해서 천식에 관한 답을 해주세요." +
+                    "답변은 최대 300자 이내로 부탁드립니다. 천식과 관련된 질문은 반드시 답해야만 합니다." +
+                    "천식에 대한 질문이 아니라서 답변을 할 수 없는 경우에만 '저는 천식 관련 챗봇이에요, 천식과 관련된 질문만 답변드릴 수 있습니다.'" +
+                    "는 답변을 해주길 바랍니다.";
 
-            // 3. 응답이 존재하고, 유효한지 확인 후 메시지 반환
-            if (response.getBody() != null && !response.getBody().getChatChoices().isEmpty()) {
-                return response.getBody().getChatChoices().get(0).getChatMessageDto().getContent();
+            ChatRequestDto requestDto = new ChatRequestDto("gpt-3.5-turbo", prompt, userMessage);
+
+            // HTTP 헤더 설정
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            headers.setBearerAuth(apiKey);
+
+            // 요청 바디를 JSON으로 직렬화
+            ObjectMapper objectMapper = new ObjectMapper();
+            String requestBody = objectMapper.writeValueAsString(requestDto);
+
+            // HTTP 엔티티 생성
+            HttpEntity<String> entity = new HttpEntity<>(requestBody, headers);
+
+            // RestTemplate을 통한 API 호출
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> response = restTemplate.exchange(apiUrl, HttpMethod.POST, entity, String.class);
+
+            // 응답 처리
+            if (response.getStatusCode() == HttpStatus.OK) {
+                return response.getBody(); // 성공 시 응답 본문 반환
             } else {
-                throw new IllegalStateException("No valid response from OpenAI API.");
+                throw new RuntimeException("API 호출 실패: " + response.getStatusCode());
             }
+
         } catch (Exception e) {
-            // 예외 발생 시 처리 (로그 출력 등)
-            throw new RuntimeException("Error occurred while communicating with OpenAI API: " + e.getMessage(), e);
+            e.printStackTrace();
+            throw new RuntimeException("API 호출 중 오류 발생: " + e.getMessage());
         }
     }
-
-    // 응답을 생성
-    private ChatResponseDto createResponse(String responseMessage) {
-        ChatMessageDto chatMessageDto = new ChatMessageDto("assistant", responseMessage);
-        // ChatChoice 객체 생성 후 필드 설정
-        ChatResponseDto.ChatChoice chatChoice = new ChatResponseDto.ChatChoice();
-        chatChoice.setIndex(0); // 인덱스 설정
-        chatChoice.setChatMessageDto(chatMessageDto); // 메시지 DTO 설정
-
-        List<ChatResponseDto.ChatChoice> chatChoices = new ArrayList<>();
-        chatChoices.add(chatChoice);
-
-        return new ChatResponseDto(chatChoices);
-    }
-
-
 }
