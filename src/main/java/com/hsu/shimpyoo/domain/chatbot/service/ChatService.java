@@ -5,7 +5,7 @@ import com.hsu.shimpyoo.domain.chatbot.dto.ChatResponseDto;
 
 
 public interface ChatService {
-    ChatResponseDto askForChat(ChatRequestDto chatRequestDto);
+    ChatResponseDto askForChat(String content);
 
 }
 
