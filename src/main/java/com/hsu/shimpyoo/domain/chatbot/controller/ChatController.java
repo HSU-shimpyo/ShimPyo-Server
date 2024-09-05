@@ -17,8 +17,8 @@ class ChatController {
     private final ChatService chatService;
 
     @PostMapping("/ask")
-    public ResponseEntity<ChatResponseDto> askChat(@RequestBody ChatRequestDto chatRequestDto) {
-        ChatResponseDto chatResponseDto = chatService.askForChat(chatRequestDto);
+    public ResponseEntity<ChatResponseDto> askChat(@RequestBody String content) {
+        ChatResponseDto chatResponseDto = chatService.askForChat(content); // content만 전달
         return ResponseEntity.ok(chatResponseDto);
     }
 }
