@@ -1,8 +1,11 @@
 package com.hsu.shimpyoo.domain.chatbot.service;
 
 
+import com.hsu.shimpyoo.global.response.CustomAPIResponse;
+import org.springframework.http.ResponseEntity;
+
 public interface ChatService {
-    String askForChat(String content);
+    ResponseEntity<CustomAPIResponse<?>> askForChat(String content);
 
 }
 

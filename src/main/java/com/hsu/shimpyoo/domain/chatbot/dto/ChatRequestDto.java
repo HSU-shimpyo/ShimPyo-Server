@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonInclude(JsonInclude.Include.NON_NULL) // null 값을 포함하지 않도록 설정
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ChatRequestDto {
 
     @JsonProperty("model")
@@ -15,11 +15,11 @@ public class ChatRequestDto {
     @JsonProperty("messages")
     private List<Message> messages;
 
-    public ChatRequestDto(String model, String systemMessage, String userMessage) {
+    // 사용자 메시지만을 받아서 자동으로 model과 messages를 구성하는 생성자
+    public ChatRequestDto(String model, String realMessage) {
         this.model = model;
         this.messages = new ArrayList<>();
-        this.messages.add(new Message("system", systemMessage));
-        this.messages.add(new Message("user", userMessage));
+        this.messages.add(new Message("user", realMessage));
     }
 
     public static class Message {
@@ -33,7 +33,6 @@ public class ChatRequestDto {
             this.role = role;
             this.content = content;
         }
-
     }
 
 }
