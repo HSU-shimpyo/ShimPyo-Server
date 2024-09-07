@@ -9,29 +9,22 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name="CHAT")
+@Table(name="CHATTING_ROOM")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Chat extends BaseEntity {
+public class ChattingRoom extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chat_id")
-    private Long chatId;
+    @Column(name = "chatting_room_id")
+    private Long chattingRoomId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User userId; // 사용자 기본키
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="chatting_room_id", nullable = false)
-    private ChattingRoom chattingRoomId; // 채팅방 기본키
-
-    @Column(name="is_send")
-    private Boolean isSend; // 수신 여부 (true -> 받은 메시지, false -> 보낸 메시지)
-
-    @Column(name="content")
-    private String content; // 메시지의 내용
+    @Column(name="chatting_title")
+    private String chattingTitle; // 채팅방 제목
 
 }
