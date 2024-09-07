@@ -1,4 +1,4 @@
-package com.hsu.shimpyoo.domain.chatbot.dto;
+package com.hsu.shimpyoo.domain.chatbot.web.dto;
 
 import lombok.Getter;
 import lombok.Setter;

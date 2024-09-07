@@ -1,4 +1,4 @@
-package com.hsu.shimpyoo.domain.chatbot.dto;
+package com.hsu.shimpyoo.domain.chatbot.web.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;

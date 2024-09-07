@@ -1,6 +1,6 @@
-package com.hsu.shimpyoo.domain.chatbot.controller;
+package com.hsu.shimpyoo.domain.chatbot.web.controller;
 
-import com.hsu.shimpyoo.domain.chatbot.dto.ChatQuestionDto;
+import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatQuestionDto;
 import com.hsu.shimpyoo.domain.chatbot.service.ChatService;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import org.springframework.http.HttpStatus;
