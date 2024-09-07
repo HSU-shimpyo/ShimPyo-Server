@@ -1,8 +1,7 @@
 package com.hsu.shimpyoo.domain.chatbot.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.hsu.shimpyoo.domain.chatbot.dto.ChatRequestDto;
-import com.hsu.shimpyoo.domain.chatbot.dto.ChatResponseDto;
+import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatRequestDto;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
