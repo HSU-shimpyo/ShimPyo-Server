@@ -4,6 +4,7 @@ import com.hsu.shimpyoo.domain.medicine.web.dto.MedicineRequestDto;
 import com.hsu.shimpyoo.domain.medicine.entity.MealTiming;
 import com.hsu.shimpyoo.domain.medicine.entity.Medicine;
 import com.hsu.shimpyoo.domain.medicine.repository.MedicineRepository;
+import com.hsu.shimpyoo.domain.medicine.web.dto.MedicineTimeSettingDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
@@ -56,6 +57,33 @@ public class MedicineService {
     private LocalTime calculateIntakeTime(LocalTime mealTime, MealTiming mealTiming, Integer intakeTiming) {
         int adjustment = mealTiming == MealTiming.BEFORE_MEAL ? -intakeTiming : intakeTiming;
         return mealTime.plusMinutes(adjustment);
+    }
+
+    public ResponseEntity<CustomAPIResponse<?>> getMedicineTimeSetting(User user) {
+        try {
+            // 해당 사용자의 약 복용 시간 정보 가져오기
+            Medicine medicine = medicineRepository.findByUserId(user)
+                    .orElseThrow(() -> new RuntimeException("약 복용 시간 설정이 존재하지 않습니다."));
+
+            MedicineTimeSettingDto data = MedicineTimeSettingDto.builder()
+                    .breakfast(medicine.getBreakfast())
+                    .lunch(medicine.getLunch())
+                    .dinner(medicine.getDinner())
+                    .mealTiming(medicine.getMealTiming())
+                    .intakeTiming(medicine.getIntakeTiming())
+                    .build();
+
+            // 성공 응답 생성
+            CustomAPIResponse<MedicineTimeSettingDto> response = CustomAPIResponse.createSuccess(
+                    200, data, "약 복용 시간 설정 정보가 성공적으로 조회되었습니다."
+            );
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+        } catch (RuntimeException e) {
+            // 예외 처리
+            CustomAPIResponse<String> response = CustomAPIResponse.createFailWithout(404, e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
     }
 
     public ResponseEntity<CustomAPIResponse<?>> getMedicineTimeLeft(User user) {
