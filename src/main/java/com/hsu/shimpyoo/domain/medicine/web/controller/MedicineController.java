@@ -31,6 +31,15 @@ public class MedicineController {
         return medicineService.MedicineTimeSetting(dto, user);
     }
 
+    @GetMapping("/getTimeSetting")
+    public ResponseEntity<CustomAPIResponse<?>> getMedicineTimeSetting() {
+        String loginId = authenticationUserUtils.getCurrentUserId();
+        User user = userRepository.findByLoginId(loginId)
+                .orElseThrow(() -> new UsernameNotFoundException("해당 사용자가 존재하지 않습니다."));
+
+        return medicineService.getMedicineTimeSetting(user);
+    }
+
     @GetMapping("/getTimeLeft")
     public ResponseEntity<CustomAPIResponse<?>> getMedicineTimeLeft() {
         String loginId = authenticationUserUtils.getCurrentUserId();
