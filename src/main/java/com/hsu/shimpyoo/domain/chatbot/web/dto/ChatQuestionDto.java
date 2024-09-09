@@ -7,4 +7,6 @@ import lombok.Setter;
 @Setter
 public class ChatQuestionDto {
     private String question;
+
+    private Boolean isSend;
 }

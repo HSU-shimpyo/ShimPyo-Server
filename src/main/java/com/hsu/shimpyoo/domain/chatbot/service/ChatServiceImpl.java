@@ -1,8 +1,11 @@
 package com.hsu.shimpyoo.domain.chatbot.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.hsu.shimpyoo.domain.chatbot.repository.ChatRepository;
+import com.hsu.shimpyoo.domain.chatbot.repository.ChattingRoomRepository;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatRequestDto;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
@@ -11,7 +14,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.server.ResponseStatusException;
 
 @Service
+@RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
+    private final ChatRepository chatRepository;
+    private final ChattingRoomRepository chattingRoomRepository;
 
     private final String apiUrl = "https://api.openai.com/v1/chat/completions";
 
@@ -21,6 +27,9 @@ public class ChatServiceImpl implements ChatService {
 
     public ResponseEntity<CustomAPIResponse<?>> askForChat(String question) {
         try {
+
+
+
             String model = "gpt-3.5-turbo";  // 모델 명
             String role = "user";  // 역할
 
