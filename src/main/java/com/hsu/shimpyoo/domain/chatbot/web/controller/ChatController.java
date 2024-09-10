@@ -16,6 +16,13 @@ public class ChatController {
 
     private final ChatService chatService;
 
+    // 채팅방 생성
+    @PostMapping("/makeChattingRoom")
+    public ResponseEntity<CustomAPIResponse<?>> makeChattingRoom(){
+        ResponseEntity<CustomAPIResponse<?>> result=chatService.makeChattingRoom();
+        return result;
+    }
+
     // 사용자 입력 메시지를 받아서 처리
     @PostMapping("/ask")
     public ResponseEntity<CustomAPIResponse<?>> askChat(@RequestBody ChatQuestionDto chatQuestionDto) {

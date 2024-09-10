@@ -3,15 +3,13 @@ package com.hsu.shimpyoo.domain.chatbot.entity;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.entity.BaseEntity;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name="CHATTING_ROOM")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ChattingRoom extends BaseEntity {
