@@ -1,35 +1,61 @@
 package com.hsu.shimpyoo.domain.chatbot.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
+import com.hsu.shimpyoo.domain.chatbot.entity.ChattingRoom;
 import com.hsu.shimpyoo.domain.chatbot.repository.ChatRepository;
 import com.hsu.shimpyoo.domain.chatbot.repository.ChattingRoomRepository;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatRequestDto;
+import com.hsu.shimpyoo.domain.user.entity.User;
+import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
     private final ChatRepository chatRepository;
     private final ChattingRoomRepository chattingRoomRepository;
+    private final UserRepository userRepository;
 
     private final String apiUrl = "https://api.openai.com/v1/chat/completions";
 
     @Value("${gpt.api.key}")
     private String apiKey;
 
+    public ResponseEntity<CustomAPIResponse<?>> makeChattingRoom(){
+        // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
+        String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 사용자 존재 여부 확인
+        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
+        if(isExistUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        }
+
+        ChattingRoom chattingRoom = ChattingRoom.
+                builder()
+                .chattingTitle("채팅방")
+                .userId(isExistUser.get())
+                .build();
+
+        chattingRoomRepository.save(chattingRoom);
+
+        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200,  null, "채팅방이 생성되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
 
     public ResponseEntity<CustomAPIResponse<?>> askForChat(String question) {
         try {
-
-
-
             String model = "gpt-3.5-turbo";  // 모델 명
             String role = "user";  // 역할
 
@@ -62,6 +88,7 @@ public class ChatServiceImpl implements ChatService {
                 // 응답 본문에서 content만 추출
                 JsonNode jsonResponse = objectMapper.readTree(response.getBody());
                 String content = jsonResponse.path("choices").get(0).path("message").path("content").asText();
+
                 CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, content, "성공적으로 답변이 제공되었습니다.");
                 return ResponseEntity.status(HttpStatus.OK).body(res);
             } else {
