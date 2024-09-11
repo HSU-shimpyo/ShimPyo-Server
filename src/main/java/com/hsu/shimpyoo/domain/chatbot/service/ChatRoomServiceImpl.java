@@ -4,6 +4,7 @@ import com.hsu.shimpyoo.domain.chatbot.entity.Chat;
 import com.hsu.shimpyoo.domain.chatbot.entity.ChatRoom;
 import com.hsu.shimpyoo.domain.chatbot.repository.ChatRepository;
 import com.hsu.shimpyoo.domain.chatbot.repository.ChatRoomRepository;
+import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatListDto;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatRoomListDto;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ModifyChatRoomTitleDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
@@ -125,5 +126,44 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         CustomAPIResponse<List<ChatRoomListDto>> response = CustomAPIResponse.createSuccess(200, chatRoomListDtos, "채팅방 목록 조회에 성공하였습니다.");
         return ResponseEntity.ok(response);
 
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> getChat(Long chatRoomId) {
+        // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
+        String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 사용자 존재 여부 확인
+        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
+        if(isExistUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        }
+
+        Optional<ChatRoom> isExistChatRoom = chatRoomRepository.findById(chatRoomId);
+
+        if(isExistChatRoom.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 채팅방입니다.");
+        }
+
+        // 채팅방이 현재 로그인한 사용자의 채팅방이 아니라면
+        if(isExistChatRoom.get().getUserId()!=isExistUser.get()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"채팅방 조회 권한이 없습니다.");
+        }
+
+        List<Chat> chatList=chatRepository.findChatByUserIdAndChatRoomId(isExistUser.get(),isExistChatRoom.get());
+
+        // 대화 내역 dto를 담을 배열 생성
+        List<ChatListDto> chatListDtos = new ArrayList<>();
+
+        for (Chat chat : chatList) {
+            ChatListDto chatListDto = new ChatListDto(
+              chat.getContent(),
+              chat.getIsSend()
+            );
+            chatListDtos.add(chatListDto);
+        }
+
+        CustomAPIResponse<List<ChatListDto>> response = CustomAPIResponse.createSuccess(200, chatListDtos, "채팅방 목록 조회에 성공하였습니다.");
+        return ResponseEntity.ok(response);
     }
 }

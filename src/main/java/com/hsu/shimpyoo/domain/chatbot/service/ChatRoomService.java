@@ -14,4 +14,7 @@ public interface ChatRoomService {
     // 채팅방 목록 조회
     ResponseEntity<CustomAPIResponse<?>> getAllChatRooms();
 
+    // 채팅방 대화 내역 조회
+    ResponseEntity<CustomAPIResponse<?>> getChat(Long chatRoomId);
+
 }
