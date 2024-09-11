@@ -55,5 +55,12 @@ public class ChatController {
         ResponseEntity<CustomAPIResponse<?>> response=chatRoomService.getAllChatRooms();
         return response;
     }
+
+    // 채팅방 대화 내역 상세 조회
+    @GetMapping("/getChat")
+    public ResponseEntity<CustomAPIResponse<?>> getChat(@RequestParam Long chatRoomId){
+        ResponseEntity<CustomAPIResponse<?>> response=chatRoomService.getChat(chatRoomId);
+        return response;
+    }
 }
 
