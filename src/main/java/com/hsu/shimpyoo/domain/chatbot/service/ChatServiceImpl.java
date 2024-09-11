@@ -23,9 +23,6 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ChatServiceImpl implements ChatService {
-    private final ChatRepository chatRepository;
-    private final ChattingRoomRepository chattingRoomRepository;
-    private final UserRepository userRepository;
 
     private final String apiUrl = "https://api.openai.com/v1/chat/completions";
 
