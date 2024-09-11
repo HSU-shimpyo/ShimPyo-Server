@@ -29,7 +29,7 @@ public class ChatController {
 
     // 채팅방 제목 수정
     @PutMapping("/modifyChatRoomTitle")
-    public ResponseEntity<CustomAPIResponse<?>> modifyChatRoomTitle(@RequestBody ModifyChatRoomTitleDto modifyChatRoomTitleDto){
+    public ResponseEntity<CustomAPIResponse<?>> modifyChatRoomTitle(@RequestBody @Valid ModifyChatRoomTitleDto modifyChatRoomTitleDto){
         ResponseEntity<CustomAPIResponse<?>> response=chatRoomService.modifyChatRoomTitle(modifyChatRoomTitleDto);
         return response;
     }
