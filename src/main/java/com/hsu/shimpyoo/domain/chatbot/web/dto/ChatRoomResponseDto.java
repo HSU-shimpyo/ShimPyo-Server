@@ -22,13 +22,13 @@ public class ChatRoomResponseDto {
     // 마지막으로 온 답변
     private String lastChat;
 
-    // 생성 시간
-    private LocalDateTime createdAt;
+    // 마지막 대화 시간
+    private String lastChatAt;
 
-    // 생성 시간을 'yyyy.MM.dd' 형식으로 반환
-    public String getFormattedCreatedAt() {
+    // 생성 시간을 'yyyy.MM.dd' 형식으로 변환
+    private String formatDate(LocalDateTime dateTime) {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-        return createdAt.format(formatter);
+        return dateTime.format(formatter);
     }
 
 
