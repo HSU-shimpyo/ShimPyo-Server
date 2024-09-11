@@ -11,4 +11,7 @@ public interface ChatRoomService {
     // 채팅방 제목 수정
     ResponseEntity<CustomAPIResponse<?>> modifyChatRoomTitle(ModifyChatRoomTitleDto requestDto);
 
+    // 채팅방 목록 조회
+    ResponseEntity<CustomAPIResponse<?>> getAllChatRooms();
+
 }
