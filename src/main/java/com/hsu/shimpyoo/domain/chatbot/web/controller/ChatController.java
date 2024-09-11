@@ -1,5 +1,6 @@
 package com.hsu.shimpyoo.domain.chatbot.web.controller;
 
+import com.hsu.shimpyoo.domain.chatbot.service.ChatRoomService;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatQuestionDto;
 import com.hsu.shimpyoo.domain.chatbot.service.ChatService;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ModifyChatRoomTitleDto;
@@ -16,18 +17,19 @@ import org.springframework.web.server.ResponseStatusException;
 public class ChatController {
 
     private final ChatService chatService;
+    private final ChatRoomService chatRoomService;
 
     // 채팅방 생성
     @PostMapping("/makeChatRoom")
     public ResponseEntity<CustomAPIResponse<?>> makeChatRoom(){
-        ResponseEntity<CustomAPIResponse<?>> response =chatService.makeChatRoom();
+        ResponseEntity<CustomAPIResponse<?>> response =chatRoomService.makeChatRoom();
         return response;
     }
 
     // 채팅방 제목 수정
     @PutMapping("/modifyChatRoomTitle")
     public ResponseEntity<CustomAPIResponse<?>> modifyChatRoomTitle(@RequestBody ModifyChatRoomTitleDto modifyChatRoomTitleDto){
-        ResponseEntity<CustomAPIResponse<?>> response=chatService.modifyChatRoomTitle(modifyChatRoomTitleDto);
+        ResponseEntity<CustomAPIResponse<?>> response=chatRoomService.modifyChatRoomTitle(modifyChatRoomTitleDto);
         return response;
     }
 
