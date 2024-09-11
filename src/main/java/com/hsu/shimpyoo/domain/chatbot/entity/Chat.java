@@ -2,16 +2,15 @@ package com.hsu.shimpyoo.domain.chatbot.entity;
 
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.entity.BaseEntity;
+import com.hsu.shimpyoo.global.enums.TFStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Entity
 @Table(name="CHAT")
 @Getter
 @Setter
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Chat extends BaseEntity {
@@ -28,10 +27,11 @@ public class Chat extends BaseEntity {
     @JoinColumn(name="chatting_room_id", nullable = false)
     private ChatRoom chatRoomId; // 채팅방 기본키
 
+    @Enumerated(EnumType.STRING)
     @Column(name="is_send")
-    private Boolean isSend; // 수신 여부 (true -> 받은 메시지, false -> 보낸 메시지)
+    private TFStatus isSend; // 수신 여부 (true -> 받은 메시지, false -> 보낸 메시지)
 
-    @Column(name="content")
+    @Column(name="content", columnDefinition = "TEXT")
     private String content; // 메시지의 내용
 
 }

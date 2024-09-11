@@ -1,8 +1,7 @@
 package com.hsu.shimpyoo.domain.chatbot.service;
 
 import com.hsu.shimpyoo.domain.chatbot.entity.ChatRoom;
-import com.hsu.shimpyoo.domain.chatbot.repository.ChatRepository;
-import com.hsu.shimpyoo.domain.chatbot.repository.ChattingRoomRepository;
+import com.hsu.shimpyoo.domain.chatbot.repository.ChatRoomRepository;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ModifyChatRoomTitleDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
@@ -20,7 +19,7 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
-    private final ChattingRoomRepository chattingRoomRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
 
     // 채팅방 생성
@@ -41,7 +40,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
                 .userId(isExistUser.get())
                 .build();
 
-        chattingRoomRepository.save(chatRoom);
+        chatRoomRepository.save(chatRoom);
 
         CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200,  null, "채팅방이 생성되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(res);
@@ -59,7 +58,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
 
-        Optional<ChatRoom> isExistChatRoom = chattingRoomRepository.findById(requestDto.getChatRoomId());
+        Optional<ChatRoom> isExistChatRoom = chatRoomRepository.findById(requestDto.getChatRoomId());
 
         if(isExistChatRoom.isEmpty()){
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 채팅방입니다.");
@@ -71,7 +70,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         }
 
         isExistChatRoom.get().setChatTitle(requestDto.getTitle());
-        chattingRoomRepository.save(isExistChatRoom.get());
+        chatRoomRepository.save(isExistChatRoom.get());
 
         CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, null ,
                 "채팅방 제목이 수정되었습니다.");
@@ -90,7 +89,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
 
-        List<ChatRoom> chatRoomList=chattingRoomRepository.findChatRoomByUserId(isExistUser.get());
+        List<ChatRoom> chatRoomList= chatRoomRepository.findChatRoomByUserId(isExistUser.get());
 
         return null;
     }
