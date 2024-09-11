@@ -48,5 +48,12 @@ public class ChatController {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"API 호출 중 오류가 발생했습니다.");
         }
     }
+
+    // 채팅방 목록 조회
+    @GetMapping("/getAllChatRoom")
+    public ResponseEntity<CustomAPIResponse<?>> getAllChatRoom(){
+        ResponseEntity<CustomAPIResponse<?>> response=chatRoomService.getAllChatRooms();
+        return response;
+    }
 }
 

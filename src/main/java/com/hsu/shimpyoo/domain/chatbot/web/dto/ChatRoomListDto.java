@@ -5,14 +5,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ChatRoomResponseDto {
+public class ChatRoomListDto {
     // 채팅방 기본키
     private Long chatRoomId;
 
@@ -24,12 +22,6 @@ public class ChatRoomResponseDto {
 
     // 마지막 대화 시간
     private String lastChatAt;
-
-    // 생성 시간을 'yyyy.MM.dd' 형식으로 변환
-    private String formatDate(LocalDateTime dateTime) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
-        return dateTime.format(formatter);
-    }
 
 
 }

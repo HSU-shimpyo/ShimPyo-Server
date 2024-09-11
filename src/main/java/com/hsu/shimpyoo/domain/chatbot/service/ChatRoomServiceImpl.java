@@ -1,7 +1,10 @@
 package com.hsu.shimpyoo.domain.chatbot.service;
 
+import com.hsu.shimpyoo.domain.chatbot.entity.Chat;
 import com.hsu.shimpyoo.domain.chatbot.entity.ChatRoom;
+import com.hsu.shimpyoo.domain.chatbot.repository.ChatRepository;
 import com.hsu.shimpyoo.domain.chatbot.repository.ChatRoomRepository;
+import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatRoomListDto;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ModifyChatRoomTitleDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
@@ -13,12 +16,15 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
 public class ChatRoomServiceImpl implements ChatRoomService {
+    private final ChatRepository chatRepository;
     private final ChatRoomRepository chatRoomRepository;
     private final UserRepository userRepository;
 
@@ -89,8 +95,35 @@ public class ChatRoomServiceImpl implements ChatRoomService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
 
+        // 사용자 아이디로 채팅방 검색
         List<ChatRoom> chatRoomList= chatRoomRepository.findChatRoomByUserId(isExistUser.get());
 
-        return null;
+        // 채팅방 정보 목록을 담을 리스트 생성
+        List<ChatRoomListDto> chatRoomListDtos = new ArrayList<>();
+
+        // 각 채팅방에 대해 마지막 메시지 조회
+        for (ChatRoom chatRoom : chatRoomList) {
+            // 마지막 메시지를 ChatRepository를 통해 조회
+            Optional<Chat> lastChat = chatRepository.findTopByUserIdAndChatRoomIdOrderByCreatedAtDesc(isExistUser.get(), chatRoom);
+
+            // dto의 마지막 메시지와 마지막 시간 정보 추가
+            String lastChatMessage = lastChat.map(Chat::getContent).orElse("메시지가 존재하지 않습니다.");
+            String lastChatAt = lastChat.map(chat -> chat.getCreatedAt().format(DateTimeFormatter.ofPattern("yyyy.MM.dd HH:mm")))
+                    .orElse("시간이 존재하지 않습니다.");
+
+            // ChatRoomListDto에 값을 채워서 리스트에 추가
+            ChatRoomListDto chatRoomListDto = new ChatRoomListDto(
+                    chatRoom.getChatRoomId(),  // 채팅방 ID
+                    chatRoom.getChatTitle(),  // 채팅방 제목
+                    lastChatMessage,  // 마지막 메시지
+                    lastChatAt  // 마지막 대화 시간
+            );
+
+            chatRoomListDtos.add(chatRoomListDto);
+        }
+
+        CustomAPIResponse<List<ChatRoomListDto>> response = CustomAPIResponse.createSuccess(200, chatRoomListDtos, "채팅방 목록 조회에 성공하였습니다.");
+        return ResponseEntity.ok(response);
+
     }
 }
