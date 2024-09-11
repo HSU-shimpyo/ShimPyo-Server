@@ -22,6 +22,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
     private final ChattingRoomRepository chattingRoomRepository;
     private final UserRepository userRepository;
 
+    // 채팅방 생성
     @Override
     public ResponseEntity<CustomAPIResponse<?>> makeChatRoom(){
         // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
@@ -45,6 +46,7 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
+    // 채팅방 제목 수정
     @Override
     public ResponseEntity<CustomAPIResponse<?>> modifyChatRoomTitle(ModifyChatRoomTitleDto requestDto) {
         // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
