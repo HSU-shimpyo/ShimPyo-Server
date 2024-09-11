@@ -5,6 +5,7 @@ import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatQuestionDto;
 import com.hsu.shimpyoo.domain.chatbot.service.ChatService;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ModifyChatRoomTitleDto;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -35,10 +36,10 @@ public class ChatController {
 
     // 사용자 입력 메시지를 받아서 처리
     @PostMapping("/ask")
-    public ResponseEntity<CustomAPIResponse<?>> askChat(@RequestBody ChatQuestionDto chatQuestionDto) {
+    public ResponseEntity<CustomAPIResponse<?>> askChat(@RequestBody @Valid ChatQuestionDto chatQuestionDto) {
         try {
             // ChatService를 호출하여 메시지 처리
-            ResponseEntity<CustomAPIResponse<?>> response = chatService.askForChat(chatQuestionDto.getQuestion());
+            ResponseEntity<CustomAPIResponse<?>> response = chatService.askForChat(chatQuestionDto);
 
             // 성공 시 응답 반환
             return response;
