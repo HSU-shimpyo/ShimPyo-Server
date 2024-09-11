@@ -26,7 +26,7 @@ public class Chat extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name="chatting_room_id", nullable = false)
-    private ChattingRoom chattingRoomId; // 채팅방 기본키
+    private ChatRoom chatRoomId; // 채팅방 기본키
 
     @Column(name="is_send")
     private Boolean isSend; // 수신 여부 (true -> 받은 메시지, false -> 보낸 메시지)

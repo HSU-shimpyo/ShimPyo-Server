@@ -1,10 +1,11 @@
 package com.hsu.shimpyoo.domain.chatbot.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.hsu.shimpyoo.domain.chatbot.entity.ChattingRoom;
+import com.hsu.shimpyoo.domain.chatbot.entity.ChatRoom;
 import com.hsu.shimpyoo.domain.chatbot.repository.ChatRepository;
 import com.hsu.shimpyoo.domain.chatbot.repository.ChattingRoomRepository;
 import com.hsu.shimpyoo.domain.chatbot.web.dto.ChatRequestDto;
+import com.hsu.shimpyoo.domain.chatbot.web.dto.ModifyChatRoomTitleDto;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.response.CustomAPIResponse;
@@ -31,7 +32,7 @@ public class ChatServiceImpl implements ChatService {
     @Value("${gpt.api.key}")
     private String apiKey;
 
-    public ResponseEntity<CustomAPIResponse<?>> makeChattingRoom(){
+    public ResponseEntity<CustomAPIResponse<?>> makeChatRoom(){
         // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
         String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -41,13 +42,13 @@ public class ChatServiceImpl implements ChatService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
         }
 
-        ChattingRoom chattingRoom = ChattingRoom.
+        ChatRoom chatRoom = ChatRoom.
                 builder()
-                .chattingTitle("채팅방")
+                .chatTitle("채팅방")
                 .userId(isExistUser.get())
                 .build();
 
-        chattingRoomRepository.save(chattingRoom);
+        chattingRoomRepository.save(chatRoom);
 
         CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200,  null, "채팅방이 생성되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(res);
@@ -99,5 +100,35 @@ public class ChatServiceImpl implements ChatService {
             e.printStackTrace();
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR,"API 호출 중 오류 발생 : " + e.getMessage());
         }
+    }
+
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> modifyChatRoomTitle(ModifyChatRoomTitleDto requestDto) {
+        // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
+        String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 사용자 존재 여부 확인
+        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
+        if(isExistUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        }
+
+        Optional<ChatRoom> isExistChatRoom = chattingRoomRepository.findById(requestDto.getChatRoomId());
+
+        if(isExistChatRoom.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 채팅방입니다.");
+        }
+
+        // 채팅방이 현재 로그인한 사용자의 채팅방이 아니라면
+        if(isExistChatRoom.get().getUserId()!=isExistUser.get()){
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN,"채팅방 제목 수정 권한이 없습니다.");
+        }
+
+        isExistChatRoom.get().setChatTitle(requestDto.getTitle());
+        chattingRoomRepository.save(isExistChatRoom.get());
+
+        CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, null ,
+                "채팅방 제목이 수정되었습니다.");
+        return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 }
