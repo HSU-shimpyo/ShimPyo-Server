@@ -14,6 +14,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -75,5 +76,22 @@ public class ChatRoomServiceImpl implements ChatRoomService {
         CustomAPIResponse<Object> res = CustomAPIResponse.createSuccess(200, null ,
                 "채팅방 제목이 수정되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(res);
+    }
+
+    // 채팅방 목록 조회
+    @Override
+    public ResponseEntity<CustomAPIResponse<?>> getAllChatRooms() {
+        // 현재 인증된 사용자의 로그인 아이디를 가져옴 (getName은 loginId를 가져오는 것)
+        String loginId= SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // 사용자 존재 여부 확인
+        Optional<User> isExistUser=userRepository.findByLoginId(loginId);
+        if(isExistUser.isEmpty()){
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"존재하지 않는 사용자입니다.");
+        }
+
+        List<ChatRoom> chatRoomList=chattingRoomRepository.findChatRoomByUserId(isExistUser.get());
+
+        return null;
     }
 }
