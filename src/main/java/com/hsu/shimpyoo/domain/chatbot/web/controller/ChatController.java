@@ -62,5 +62,12 @@ public class ChatController {
         ResponseEntity<CustomAPIResponse<?>> response=chatRoomService.getChat(chatRoomId);
         return response;
     }
+
+    // 키워드로 채팅방 검색
+    @GetMapping("/getChatRoomByKeyword")
+    public ResponseEntity<CustomAPIResponse<?>> getChatRoomByKeyword(@RequestParam String keyword){
+        ResponseEntity<CustomAPIResponse<?>> response=chatRoomService.getChatRoomByKeyword(keyword);
+        return response;
+    }
 }
 
