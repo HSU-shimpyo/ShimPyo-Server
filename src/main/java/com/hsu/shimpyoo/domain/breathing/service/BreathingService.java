@@ -75,14 +75,22 @@ public class BreathingService {
         // 현재 요일에 해당하는 WeekDay Enum을 가져옵니다.
         WeekDay currentWeekDay = WeekDay.valueOf(LocalDateTime.now().getDayOfWeek().name());
 
-        // DailyPef 데이터베이스에 상태와 최대호기량을 저장
-        DailyPef dailyPef = DailyPef.builder()
-                .userId(user)
-                .pef(maxBreathingRate)
-                .state(state) // Enum 타입으로 상태 저장
-                .weekDay(currentWeekDay) // Enum 타입으로 요일 저장
-                .build();
-        dailyPefRepository.save(dailyPef);
+        LocalDateTime startOfToday = LocalDate.now().atStartOfDay();  // 오늘의 시작 시간
+        LocalDateTime endOfToday = LocalDate.now().atTime(LocalTime.MAX);  // 오늘의 끝 시간
+
+        // 이미 오늘의 DailyPef 데이터가 저장되어 있는지 확인
+        Optional<DailyPef> existingDailyPef = dailyPefRepository.findTopByUserIdAndCreatedAtBetweenOrderByCreatedAtDesc(user, startOfToday, endOfToday);
+
+        // 오늘의 데이터가 없을 때만 저장
+        if (!existingDailyPef.isPresent()) { // DailyPef 데이터베이스에 상태와 최대호기량을 저장
+            DailyPef dailyPef = DailyPef.builder()
+                    .userId(user)
+                    .pef(maxBreathingRate)
+                    .state(state) // Enum 타입으로 상태 저장
+                    .weekDay(currentWeekDay) // Enum 타입으로 요일 저장
+                    .build();
+            dailyPefRepository.save(dailyPef);
+        }
 
         // 반환 데이터
         Map<String, Object> responseData = new LinkedHashMap<>();
