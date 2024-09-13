@@ -88,7 +88,8 @@ public class BreathingService {
         Map<String, Object> responseData = new LinkedHashMap<>();
         responseData.put("status", state.getDescription()); // 한국어 설명으로 반환
         responseData.put("breathingRate", maxBreathingRate);
-        responseData.put("rateDifference", rateDifferencePercent + "% " + rateChangeDirection);
+        responseData.put("variance", rateDifferencePercent + "%"); // 증감률
+        responseData.put("rateChangeDirection", rateChangeDirection);
         responseData.put("first", todayBreathing.getFirst());
         responseData.put("second", todayBreathing.getSecond());
         responseData.put("third", todayBreathing.getThird());

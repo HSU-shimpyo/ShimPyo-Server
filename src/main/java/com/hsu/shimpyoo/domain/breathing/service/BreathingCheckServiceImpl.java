@@ -152,7 +152,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService {
         }
 
         // 플라스크 서버 엔드포인트
-        String flaskUrl = "http://localhost:5001/analyze";
+        String flaskUrl = "http://15.165.141.134:5001/analyze";
 
         // Flask 서버로 POST 요청을 보내서 PEF 값을 받아옴
         ResponseEntity<Map> response = restTemplate.postForEntity(flaskUrl, breathingFlaskRequestDto, Map.class);
@@ -166,7 +166,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService {
                 .third(pefValues.get("pef_3"))
                 .build();
 
-        // 최대 수치 서렂ㅇ
+        // 최대 수치 설정
         Double maxPef = Math.max(breathingPefDto.getFirst(),
                 Math.max(breathingPefDto.getSecond(), breathingPefDto.getThird()));
 
@@ -183,6 +183,11 @@ public class BreathingCheckServiceImpl implements BreathingCheckService {
 
         if (!response.getStatusCode().is2xxSuccessful()) {
             throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "통신 중 서버 오류가 발생했습니다.");
+        }
+
+        // 응답 본문이 비어 있는 경우 예외 처리
+        if (response.getBody() == null) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "서버로부터 올바른 응답을 받지 못했습니다.");
         }
 
         return newBreathing;
