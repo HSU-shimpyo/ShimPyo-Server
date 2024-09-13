@@ -3,6 +3,7 @@ HELP.md
 .DS_Store
 src/main/resources/*.properties
 src/main/resources/*.yml
+src/main/resources/firebase/*.json
 *.pem
 
 # Ignore Gradle build directory except gradle-wrapper.jar
