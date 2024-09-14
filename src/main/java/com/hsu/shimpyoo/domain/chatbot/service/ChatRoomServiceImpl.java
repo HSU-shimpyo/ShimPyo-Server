@@ -43,13 +43,18 @@ public class ChatRoomServiceImpl implements ChatRoomService {
 
         ChatRoom chatRoom = ChatRoom.
                 builder()
-                .chatTitle("채팅방")
+                .chatTitle("채팅방 제목")
                 .userId(isExistUser.get())
                 .build();
 
         chatRoomRepository.save(chatRoom);
 
-        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200,  null, "채팅방이 생성되었습니다.");
+        ChatRoomListDto chatRoomResponseDto=new ChatRoomListDto();
+        chatRoomResponseDto.setChatRoomId(chatRoom.getChatRoomId());
+        chatRoomResponseDto.setChatRoomTitle(chatRoom.getChatTitle());
+
+
+        CustomAPIResponse<Object> res=CustomAPIResponse.createSuccess(200, chatRoomResponseDto, "채팅방이 생성되었습니다.");
         return ResponseEntity.status(HttpStatus.OK).body(res);
     }
 
