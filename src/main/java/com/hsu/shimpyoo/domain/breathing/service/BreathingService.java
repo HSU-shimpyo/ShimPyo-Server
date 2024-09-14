@@ -1,7 +1,8 @@
 package com.hsu.shimpyoo.domain.breathing.service;
-import com.hsu.shimpyoo.domain.breathing.web.dto.BreathingPefDto;
+import com.hsu.shimpyoo.domain.breathing.enums.State;
 import com.hsu.shimpyoo.domain.breathing.entity.Breathing;
 import com.hsu.shimpyoo.domain.breathing.entity.*;
+import com.hsu.shimpyoo.domain.breathing.enums.WeekDay;
 import com.hsu.shimpyoo.domain.breathing.repository.BreathingRepository;
 import com.hsu.shimpyoo.domain.breathing.repository.DailyPefRepository;
 import com.hsu.shimpyoo.domain.user.entity.User;
@@ -14,7 +15,6 @@ import org.springframework.stereotype.Service;
 
 import java.time.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

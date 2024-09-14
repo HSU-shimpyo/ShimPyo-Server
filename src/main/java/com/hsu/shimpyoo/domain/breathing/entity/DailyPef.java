@@ -1,5 +1,7 @@
 package com.hsu.shimpyoo.domain.breathing.entity;
 
+import com.hsu.shimpyoo.domain.breathing.enums.State;
+import com.hsu.shimpyoo.domain.breathing.enums.WeekDay;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.entity.BaseEntity;
 import jakarta.persistence.*;

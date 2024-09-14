@@ -1,6 +1,6 @@
 package com.hsu.shimpyoo.domain.medicine.web.dto;
 
-import com.hsu.shimpyoo.domain.medicine.entity.MealTiming;
+import com.hsu.shimpyoo.domain.medicine.enums.MealTiming;
 import lombok.Builder;
 import lombok.Getter;
 
