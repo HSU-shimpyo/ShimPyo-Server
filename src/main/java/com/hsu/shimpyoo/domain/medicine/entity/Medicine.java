@@ -1,5 +1,7 @@
 package com.hsu.shimpyoo.domain.medicine.entity;
 
+import com.hsu.shimpyoo.domain.medicine.enums.MealTiming;
+import com.hsu.shimpyoo.domain.medicine.enums.MealType;
 import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.global.entity.BaseEntity;
 import jakarta.persistence.*;

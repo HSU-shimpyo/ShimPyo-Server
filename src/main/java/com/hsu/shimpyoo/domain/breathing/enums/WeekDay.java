@@ -1,4 +1,4 @@
-package com.hsu.shimpyoo.domain.breathing.entity;
+package com.hsu.shimpyoo.domain.breathing.enums;
 
 public enum WeekDay {
     MONDAY("월요일"),

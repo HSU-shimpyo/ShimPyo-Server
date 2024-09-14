@@ -1,4 +1,4 @@
-package com.hsu.shimpyoo.domain.medicine.entity;
+package com.hsu.shimpyoo.domain.medicine.enums;
 
 public enum MealTiming {
     BEFORE_MEAL("식전"),
