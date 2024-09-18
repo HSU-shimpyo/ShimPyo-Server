@@ -13,6 +13,6 @@ import java.io.IOException;
 public interface BreathingCheckService {
     BreathingFile uploadBreathing(BreathingUploadRequestDto breathingUploadRequestDto) throws IOException;
     Breathing analyzeBreathing
-            (BreathingFlaskRequestDto breathingFlaskRequestDto, Long breathingFileId) throws IOException;
+            (BreathingUploadRequestDto breathingUploadRequestDto, Long breathingFileId) throws IOException;
     void deleteBreathing();
 }

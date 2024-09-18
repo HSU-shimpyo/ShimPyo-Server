@@ -80,7 +80,7 @@ public class BreathingCheckController {
         Long breathingFileId= breathingFile.getBreathingFileId();
 
         // flask 서버로 파일 URL을 전송하고, Breathing 결과를 받아옴
-        Breathing todayBreathing = breathingCheckServiceImpl.analyzeBreathing(breathingFlaskRequestDto, breathingFileId);
+        Breathing todayBreathing = breathingCheckServiceImpl.analyzeBreathing(breathingUploadRequestDto, breathingFileId);
 
         // 현재 로그인된 사용자 정보 가져오기
         String loginId = authenticationUserUtils.getCurrentUserId();
@@ -138,7 +138,7 @@ public class BreathingCheckController {
         Long breathingFileId= breathingFile.getBreathingFileId();
 
         // flask 서버로 파일 URL을 전송하고, Breathing 결과를 받아옴
-        Breathing todayBreathing = breathingCheckServiceImpl.analyzeBreathing(breathingFlaskRequestDto, breathingFileId);
+        Breathing todayBreathing = breathingCheckServiceImpl.analyzeBreathing(breathingUploadRequestDto, breathingFileId);
 
         // 현재 로그인된 사용자 정보 가져오기
         String loginId = authenticationUserUtils.getCurrentUserId();
