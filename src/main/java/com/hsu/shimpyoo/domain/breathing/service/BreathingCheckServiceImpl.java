@@ -13,15 +13,19 @@ import com.hsu.shimpyoo.domain.user.entity.User;
 import com.hsu.shimpyoo.domain.user.repository.UserRepository;
 import com.hsu.shimpyoo.global.aws.s3.service.S3Service;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.http.*;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -139,7 +143,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService {
     @Transactional
     @Override
     public Breathing analyzeBreathing
-    (BreathingFlaskRequestDto breathingFlaskRequestDto, Long breathingFileId) throws IOException {
+    (BreathingUploadRequestDto breathingUploadRequestDto, Long breathingFileId) throws IOException {
         // 현재 사용자의 로그인용 아이디를 가지고 옴
         String loginId = SecurityContextHolder.getContext().getAuthentication().getName();
 
@@ -150,10 +154,35 @@ public class BreathingCheckServiceImpl implements BreathingCheckService {
         }
 
         // 플라스크 서버 엔드포인트
-        String flaskUrl = "http://15.165.141.134:5001/analyze";
+        //String flaskUrl = "http://15.165.141.134:5001/analyze";
+        String flaskUrl = "http://localhost:5001/upload"; // 디벨롭용
+
+        // 첫 번째, 두 번째, 세 번째 파일을 변환하여 Flask 서버로 전송 준비
+        File firstFile = convertMultiPartToFile(breathingUploadRequestDto.getFirstFile());
+        File secondFile = convertMultiPartToFile(breathingUploadRequestDto.getSecondFile());
+        File thirdFile = convertMultiPartToFile(breathingUploadRequestDto.getThirdFile());
+
+        // 각 파일을 FileSystemResource로 변환
+        FileSystemResource firstResource = new FileSystemResource(firstFile);
+        FileSystemResource secondResource = new FileSystemResource(secondFile);
+        FileSystemResource thirdResource = new FileSystemResource(thirdFile);
+
+        // HTTP 헤더 설정
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+
+        // 요청 본문 설정
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("file1", new HttpEntity<>(firstResource, createHttpHeaders(breathingUploadRequestDto.getFirstFile().getOriginalFilename())));
+        body.add("file2", new HttpEntity<>(secondResource, createHttpHeaders(breathingUploadRequestDto.getSecondFile().getOriginalFilename())));
+        body.add("file3", new HttpEntity<>(thirdResource, createHttpHeaders(breathingUploadRequestDto.getThirdFile().getOriginalFilename())));
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+
 
         // Flask 서버로 POST 요청을 보내서 PEF 값을 받아옴
-        ResponseEntity<Map> response = restTemplate.postForEntity(flaskUrl, breathingFlaskRequestDto, Map.class);
+        ResponseEntity<Map> response = restTemplate.exchange(flaskUrl, HttpMethod.POST, requestEntity, Map.class);
 
         // "pef_1": 300.0 같은 형식으로 저장
         Map<String, Double> pefValues = response.getBody();
@@ -189,6 +218,23 @@ public class BreathingCheckServiceImpl implements BreathingCheckService {
         }
 
         return newBreathing;
+    }
+
+    // MultipartFile을 File로 변환
+    private File convertMultiPartToFile(MultipartFile file) throws IOException {
+        File convFile = new File(file.getOriginalFilename());
+        try (FileOutputStream fos = new FileOutputStream(convFile)) {
+            fos.write(file.getBytes());
+        }
+        return convFile;
+    }
+
+    // 헤더 설정 메서드
+    private HttpHeaders createHttpHeaders(String filename) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setContentDisposition(ContentDisposition.builder("form-data").name("file").filename(filename).build());
+        return headers;
     }
 
 }
