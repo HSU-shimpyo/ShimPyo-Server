@@ -154,7 +154,7 @@ public class BreathingCheckServiceImpl implements BreathingCheckService {
         }
 
         // 플라스크 서버 엔드포인트
-        String flaskUrl = "http://15.165.141.134:5001/upload"; // 배포용
+        String flaskUrl = "http://flask-app:5001/upload"; // 배포용
         //String flaskUrl = "http://localhost:5001/upload"; // 디벨롭용
 
         // 첫 번째, 두 번째, 세 번째 파일을 변환하여 Flask 서버로 전송 준비
